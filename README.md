@@ -35,7 +35,7 @@ available on PATH before Claude Code or Codex starts the plugin.
 ### Claude Code
 
 ```text
-/plugin marketplace add CEA-HPC/Irene-Agent
+/plugin marketplace add BigDFT-group/HPC-Agentic-SDK
 /plugin install irene@irene-marketplace
 /reload-plugins
 ```
@@ -43,7 +43,7 @@ available on PATH before Claude Code or Codex starts the plugin.
 ### Codex
 
 ```text
-codex plugin marketplace add CEA-HPC/Irene-Agent
+codex plugin marketplace add BigDFT-group/HPC-Agentic-SDK
 ```
 
 Then open `/plugins`, install `irene`, start a new thread, and run `/irene-demo`.
@@ -55,12 +55,12 @@ Then open `/plugins`, install `irene`, start a new thread, and run `/irene-demo`
   "mcpServers": {
     "irene-hpc": {
       "command": "uv",
-      "args": ["tool", "run", "--quiet", "--from", "git+https://github.com/CEA-HPC/Irene-Agent.git@main#subdirectory=server", "irene-hpc-mcp"],
+      "args": ["tool", "run", "--quiet", "--from", "git+https://github.com/BigDFT-group/HPC-Agentic-SDK.git@main#subdirectory=server", "irene-hpc-mcp"],
       "env": {}
     },
     "irene-docs": {
       "command": "uv",
-      "args": ["tool", "run", "--quiet", "--from", "git+https://github.com/CEA-HPC/Irene-Agent.git@main#subdirectory=server", "irene-docs-mcp"],
+      "args": ["tool", "run", "--quiet", "--from", "git+https://github.com/BigDFT-group/HPC-Agentic-SDK.git@main#subdirectory=server", "irene-docs-mcp"],
       "env": {}
     }
   }
@@ -70,5 +70,5 @@ Then open `/plugins`, install `irene`, start a new thread, and run `/irene-demo`
 ## Verify
 
 ```bash
-uv tool run --from git+https://github.com/CEA-HPC/Irene-Agent.git@main#subdirectory=server irene-doctor
+uv tool run --from git+https://github.com/BigDFT-group/HPC-Agentic-SDK.git@main#subdirectory=server irene-doctor
 ```

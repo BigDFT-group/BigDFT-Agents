@@ -5,7 +5,7 @@
   "author": {
     "name": "HPC-Agents maintainers"
   },
-  "repository": "https://github.com/CEA-HPC/Irene-Agent",
+  "repository": "https://github.com/BigDFT-group/HPC-Agentic-SDK",
   "keywords": ["hpc", "slurm", "bridge", "tgcc", "cea", "irene", "supercomputer"],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",

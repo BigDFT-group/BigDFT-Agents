@@ -36,7 +36,7 @@ jobs reading or writing STORE, or `scratch,work,store` when all three are needed
 Validate with:
 
 ```bash
-uv tool run --quiet --from git+https://github.com/CEA-HPC/Irene-Agent.git@main#subdirectory=server irene-doctor
+uv tool run --quiet --from git+https://github.com/BigDFT-group/HPC-Agentic-SDK.git@main#subdirectory=server irene-doctor
 ```
 
 Docs search works offline with BM25. Embeddings are optional and require a custom
