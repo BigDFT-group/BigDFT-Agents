@@ -8,6 +8,16 @@
       "name": "irene",
       "source": "./plugins/irene",
       "description": "Bridge/Slurm job management and documentation search for the TGCC Irene supercomputer."
+    },
+    {
+      "name": "remotemanager",
+      "source": "./plugins/remotemanager",
+      "description": "RemoteManager Dataset campaign management for local and HPC execution targets."
+    },
+    {
+      "name": "hpc-agentic-marketplace",
+      "source": "./plugins/hpc-agentic-marketplace",
+      "description": "Maintenance guidance for adding and updating HPC-Agentic-SDK marketplace plugins."
     }
   ]
 }

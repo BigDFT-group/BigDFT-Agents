@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "remotemanager-generic": {
+      "command": "uv",
+      "args": [
+        "tool",
+        "run",
+        "--quiet",
+        "--from",
+        "git+https://gitlab.com/luigigenovese/remotemanager-mcp.git@master",
+        "remotemanager-generic-mcp"
+      ],
+      "env": {}
+    }
+  }
+}

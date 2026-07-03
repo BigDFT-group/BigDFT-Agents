@@ -8,6 +8,19 @@ Irene is CPU-first. The normal target is the `rome` partition: 2,286 AMD Rome
 nodes with 128 cores per node. Specialized `xlarge` and V100-family partitions
 cover large-memory and GPU workloads.
 
+
+## Included Plugins
+
+This marketplace currently distributes three plugins:
+
+- `irene`: live TGCC Irene status, filesystem, job, and documentation tools.
+- `remotemanager`: RemoteManager Dataset campaign tools. The Python MCP server
+  remains in the external `remotemanager-MCP` repository and is installed at
+  launch time with `uv tool run`. User-specific paths are read from
+  `~/.config/remotemanager-mcp/config.yaml`, not from marketplace metadata.
+- `hpc-agentic-marketplace`: maintenance guidance for adding or updating
+  plugins while keeping public metadata separate from user-local config URIs.
+
 ## Configure
 
 Settings live in `~/.irene/config.json`:

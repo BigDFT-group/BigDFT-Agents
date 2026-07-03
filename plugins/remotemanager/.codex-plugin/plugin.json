@@ -1,0 +1,35 @@
+{
+  "name": "remotemanager",
+  "version": "0.1.0",
+  "description": "Create and manage RemoteManager Dataset campaigns on local and HPC computers, including TGCC Irene configurations.",
+  "author": {
+    "name": "HPC-Agents maintainers"
+  },
+  "repository": "https://github.com/BigDFT-group/HPC-Agentic-SDK",
+  "keywords": [
+    "hpc",
+    "remotemanager",
+    "dataset",
+    "campaign",
+    "bigdft",
+    "irene"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "RemoteManager",
+    "shortDescription": "Run RemoteManager Dataset campaigns from Codex.",
+    "longDescription": "Create, inspect, run, and retrieve RemoteManager Dataset campaigns on local or HPC targets through the external remotemanager-MCP server.",
+    "developerName": "HPC-Agents maintainers",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Configure remotemanager-MCP for first use.",
+      "List available RemoteManager campaign functions.",
+      "Create a RemoteManager campaign on Irene."
+    ]
+  }
+}

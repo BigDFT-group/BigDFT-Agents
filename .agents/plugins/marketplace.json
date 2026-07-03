@@ -15,6 +15,30 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Productivity"
+    },
+    {
+      "name": "remotemanager",
+      "source": {
+        "source": "local",
+        "path": "./plugins/remotemanager"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "hpc-agentic-marketplace",
+      "source": {
+        "source": "local",
+        "path": "./plugins/hpc-agentic-marketplace"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
     }
   ]
 }
