@@ -29,8 +29,21 @@ Docs search works offline with BM25 over the packaged guide.
 
 ## Install
 
-The plugin starts MCP servers with `uv tool run`, so `uv` must be installed and
-available on PATH before Claude Code or Codex starts the plugin.
+Adding the plugin marketplace only registers the plugin metadata; it does not
+start the Irene MCP servers and does not need `uv`.
+
+The installed plugin starts MCP servers with `uv tool run`, so `uv` must be
+installed and available on `PATH` before Claude Code or Codex starts the plugin.
+If `uv` was installed with `pip install --user` or the official installer, make
+sure the agent process inherits `~/.local/bin`:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+If the host application is launched from a desktop menu, it may not inherit the
+same shell `PATH`. In that case, either start it from a configured shell or use a
+manual MCP registration with the absolute path to `uv`.
 
 ### Claude Code
 
@@ -50,6 +63,9 @@ Then open `/plugins`, install `irene`, start a new thread, and run `/irene-demo`
 
 ## Manual MCP Config
 
+Use this form when `uv` is reliably on `PATH` for the process that starts MCP
+servers:
+
 ```json
 {
   "mcpServers": {
@@ -65,6 +81,33 @@ Then open `/plugins`, install `irene`, start a new thread, and run `/irene-demo`
     }
   }
 }
+```
+
+For local installs where `uv` is not on `PATH`, replace `"command": "uv"` with
+the absolute executable path, for example:
+
+```json
+{
+  "mcpServers": {
+    "irene-hpc": {
+      "command": "/home/genovese/.local/bin/uv",
+      "args": ["tool", "run", "--quiet", "--from", "git+https://github.com/BigDFT-group/HPC-Agentic-SDK.git@main#subdirectory=server", "irene-hpc-mcp"],
+      "env": {}
+    },
+    "irene-docs": {
+      "command": "/home/genovese/.local/bin/uv",
+      "args": ["tool", "run", "--quiet", "--from", "git+https://github.com/BigDFT-group/HPC-Agentic-SDK.git@main#subdirectory=server", "irene-docs-mcp"],
+      "env": {}
+    }
+  }
+}
+```
+
+Codex can also register the same servers without editing TOML manually:
+
+```bash
+codex mcp add irene-hpc -- /home/genovese/.local/bin/uv tool run --quiet --from git+https://github.com/BigDFT-group/HPC-Agentic-SDK.git@main#subdirectory=server irene-hpc-mcp
+codex mcp add irene-docs -- /home/genovese/.local/bin/uv tool run --quiet --from git+https://github.com/BigDFT-group/HPC-Agentic-SDK.git@main#subdirectory=server irene-docs-mcp
 ```
 
 ## Verify

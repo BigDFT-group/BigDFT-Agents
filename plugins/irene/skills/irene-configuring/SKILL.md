@@ -19,6 +19,24 @@ Recommended config:
 }
 ```
 
+Plugin installation has two separate phases. Adding the marketplace only fetches
+plugin metadata and does not require `uv`. Starting the installed MCP servers
+does require `uv`, because the plugin manifest launches `irene-hpc-mcp` and
+`irene-docs-mcp` with `uv tool run`.
+
+When troubleshooting installation, first check that the process launching Codex
+or Claude Code has `uv` on `PATH`. User installs commonly place it in
+`~/.local/bin`; launch the agent from a shell with:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+If the host application cannot inherit that `PATH`, register the MCP servers
+manually with the absolute `uv` path, for example `/home/genovese/.local/bin/uv`.
+Keep the repository plugin manifest portable by using `uv` there, not a
+machine-specific absolute path.
+
 Ask how the user reaches Irene. Prefer an existing SSH alias from `~/.ssh/config`;
 otherwise use the TGCC-provided `user@host` destination. If SSH requires a
 password, set `ssh.passfile` to the local file containing it, such as
