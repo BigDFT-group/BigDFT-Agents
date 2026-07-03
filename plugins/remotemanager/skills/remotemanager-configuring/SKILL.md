@@ -64,8 +64,40 @@ functions:
 The built-in `remotemanager_mcp.sample_functions` module provides `square` and
 `cube` for testing. Replace or extend with your own module entries.
 
+Each entry must name the callable plus exactly one of:
+
+- `module` — a dotted Python module importable in the MCP server environment
+- `file` — a path to a local `.py` file (`~` expanded); loaded with
+  `importlib.util.spec_from_file_location` at registry resolution time, no
+  package install required
+
+```yaml
+  my_fn:
+    file: ~/.config/remotemanager-mcp/functions/my_fn.py
+    function: my_fn
+    description: My custom function loaded from a local file.
+    file_args: []
+```
+
+Defining both `file` and `module` in the same entry is an error.
+
 `file_args` lists argument names whose values are local file paths that must be
 staged to the remote machine before execution.
+
+#### All imports must be inside the function body
+
+remotemanager stages only the **function body** to the remote machine — not
+module-level imports. Any `import` statement at the top of the `.py` file is
+invisible on the remote side. Place every import inside the function:
+
+```python
+def my_fn(x: float) -> dict:
+    import os          # must be inside — not at module level
+    import subprocess  # must be inside — not at module level
+    ...
+```
+
+This applies equally to functions registered via `module:`.
 
 ### 4. Create at least one machine YAML file
 

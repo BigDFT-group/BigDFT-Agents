@@ -172,6 +172,31 @@ Dynamic defaults use Python-like expressions in braces:
 
 Escaping matters in defaults containing `:` or `=`. Use backslashes when needed.
 
+### Colons in default values (Slurm time format)
+
+The placeholder parser splits on `:` to separate options. A default value that
+itself contains `:` — such as a Slurm wall-time string `01:00:00` — breaks
+parsing with a `Spurious ':' character` error:
+
+```yaml
+# WRONG — parser sees `:default=01`, `:00`, `:00` as separate tokens
+#SBATCH --time=#time:default=01:00:00#
+```
+
+Use `optional=False` to make the argument required with no default, and let
+the caller always supply it via `run_options`:
+
+```yaml
+# CORRECT
+#SBATCH --time=#time:optional=False#
+```
+
+Then in `append_campaign_run`:
+
+```python
+run_options={"time": "01:00:00", "account": "myproject"}
+```
+
 ## Practical template rules
 
 For MCP campaigns, templates should normally expose:
