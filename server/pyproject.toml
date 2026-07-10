@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "irene-mcp"
-version = "0.1.0"
-description = "MCP servers for the TGCC Irene supercomputer: Bridge/Slurm interaction and documentation search."
+version = "0.2.0"
+description = "MCP servers for the TGCC Irene supercomputer: Bridge scheduler interaction and documentation search. A thin skin over hpc-agent-core."
 requires-python = ">=3.10"
 dependencies = [
-    "mcp",
-    "remotemanager",
-    "httpx",
-    "numpy",
-    "pydantic",
+    # Pinned to a compatible range, not left open — see hpc-agent-core's
+    # PORTING.md §9. Re-check `pip index versions hpc-agent-core` before
+    # bumping the ceiling. Needs >=0.4.1 for doctor.check_embedding()'s fix
+    # for machines with no embedding endpoint configured at all.
+    "hpc-agent-core>=0.4.1,<0.5",
 ]
 
 [project.scripts]
