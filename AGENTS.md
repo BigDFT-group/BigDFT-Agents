@@ -26,8 +26,9 @@ plugins. It currently includes:
   skills, and a BigDFT source contributor doesn't get input-file skills
   they don't need.
 
-(Note: this repository was previously named `HPC-Agentic-SDK`; some older
-external references may still use that name, but GitHub redirects it.)
+(Note: this repository has been renamed twice — `HPC-Agentic-SDK` →
+`IreneAgent` → `BigDFT-Agents`. Some older external references may still
+use an earlier name; GitHub redirects both.)
 
 ## Design Rules
 
