@@ -48,8 +48,9 @@ every hpc-agent-core plugin):
 }
 ```
 
-- `ssh.host` is a `~/.ssh/config` alias or TGCC-provided `user@host`.
-  `IRENE_HOST` overrides it.
+- `ssh.host` is a `~/.ssh/config` alias, TGCC-provided `user@host`, or
+  `"localhost"` if the agent is running directly on an Irene front-end node
+  (no SSH needed at all). `IRENE_HOST` overrides it.
 - `computer.passfile` is an optional password file for SSH auth (only
   needed if Irene requires it for your account). If you configured this
   plugin before it moved onto hpc-agent-core, move this value here from

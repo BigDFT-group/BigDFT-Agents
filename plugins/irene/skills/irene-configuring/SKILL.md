@@ -49,7 +49,9 @@ Ask how the user reaches Irene. Prefer an existing SSH alias from `~/.ssh/config
 otherwise use the TGCC-provided `user@host` destination. If SSH requires a
 password, set `computer.passfile` to the local file containing it, such as
 `/tmp/irene`. Access details are in site/project documentation, not in the public
-guide.
+guide. If the agent session is running directly on an Irene front-end node
+itself (not a personal laptop), set `"host": "localhost"` instead — no SSH
+key or passfile needed at all in that case.
 
 You may store a remembered project ID in `defaults.account`, but job
 submission must not use it silently. Every JobSpec must include an
