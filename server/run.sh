@@ -1,6 +1,6 @@
 #!/bin/bash
-# Launch an MCP server module from the irene_mcp package.
-# Usage: run.sh <module>   e.g. run.sh irene_mcp.hpc_server
+# Launch an MCP server module from the irene_mcp or laraq_mcp package.
+# Usage: run.sh <module>   e.g. run.sh irene_mcp.hpc_server, run.sh laraq_mcp.server
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -17,7 +17,7 @@ if [ ! -x "$VENV/bin/python" ]; then
     "$VENV/bin/pip" install --quiet --upgrade pip >&2
 fi
 # (Re)install if the package or its deps are missing.
-if ! "$VENV/bin/python" -c "import irene_mcp, mcp, remotemanager" >/dev/null 2>&1; then
+if ! "$VENV/bin/python" -c "import irene_mcp, laraq_mcp, mcp, remotemanager" >/dev/null 2>&1; then
     "$VENV/bin/pip" install --quiet -e "$DIR" >&2
 fi
 

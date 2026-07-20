@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "laraq-mcp": {
+      "command": "uv",
+      "args": [
+        "tool",
+        "run",
+        "--quiet",
+        "--from",
+        "git+https://github.com/BigDFT-group/BigDFT-Agents.git@main#subdirectory=server",
+        "laraq-mcp"
+      ],
+      "env": {}
+    }
+  }
+}

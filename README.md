@@ -12,7 +12,7 @@ cover large-memory and GPU workloads.
 
 ## Included Plugins
 
-This marketplace currently distributes four plugins:
+This marketplace currently distributes five plugins:
 
 - `irene`: live TGCC Irene status, filesystem, job, and documentation tools.
 - `remotemanager`: RemoteManager Dataset campaign tools. The Python MCP server
@@ -27,6 +27,12 @@ This marketplace currently distributes four plugins:
 - `bigdft-dev`: developer guides for BigDFT's Fortran internals -- Futile,
   ATlab, liborbs, PSolver, KB projectors, and the input-variable pipeline.
   Skills only, no MCP server.
+- `laraq`: generate, validate, dry-run, and execute BigDFT Python code from
+  natural-language queries, via RAG research over the BigDFT documentation
+  and subagent-driven analysis (intent extraction, physics-parameter
+  extraction, feasibility checking, query expansion, code generation).
+  Execution is always in-process; remote/HPC submission of the generated
+  code uses the `remotemanager` plugin above, same as `bigdft`.
 
 Project-wide marketplace maintenance rules live in `AGENTS.md`.
 
@@ -136,8 +142,16 @@ codex mcp add irene-hpc -- /home/genovese/.local/bin/uv tool run --quiet --from 
 codex mcp add irene-docs -- /home/genovese/.local/bin/uv tool run --quiet --from git+https://github.com/BigDFT-group/BigDFT-Agents.git@main#subdirectory=server irene-docs-mcp
 ```
 
+`laraq` uses the same `#subdirectory=server` package, just a different
+entrypoint (`laraq-mcp`) -- see the `laraq-configuring` skill for its config
+file (`~/.laraq/config.toml`). Codex custom subagents for laraq aren't
+plugin-bundled (Codex has no `agents`-bundling manifest field yet); manual
+`.codex/agents/` mirrors ship at `plugins/laraq/codex-agents/*.toml` with
+copy instructions in that skill.
+
 ## Verify
 
 ```bash
 uv tool run --from git+https://github.com/BigDFT-group/BigDFT-Agents.git@main#subdirectory=server irene-doctor
+uv tool run --from git+https://github.com/BigDFT-group/BigDFT-Agents.git@main#subdirectory=server laraq-doctor
 ```

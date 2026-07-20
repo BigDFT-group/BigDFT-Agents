@@ -16,6 +16,15 @@ plugins. It currently includes:
   running calculations doesn't have to install six library-internals
   skills, and a BigDFT source contributor doesn't get input-file skills
   they don't need.
+- `plugins/laraq`: generates, validates, dry-runs, and executes BigDFT
+  Python code from natural-language queries via RAG research and
+  subagent-driven analysis. `server/laraq_mcp` (a sibling Python package to
+  `server/irene_mcp`, same `server/pyproject.toml`) provides the
+  deterministic MCP tools (`check_server`, `research`, `validate`,
+  `dry_run`, `execute` — always in-process); the LLM-calling analysis steps
+  are Claude Code subagents (`plugins/laraq/agents/*.md`), with manual-
+  install Codex TOML mirrors at `plugins/laraq/codex-agents/*.toml` since
+  Codex has no plugin-bundling field for custom agents yet.
 
 ## Design Rules
 
@@ -154,6 +163,41 @@ python3 -m venv .venv
   validating input locally with `SystemCalculator(dry_run=True)` before
   submitting) lives in `plugins/remotemanager`'s
   `remotemanager-dataset-promotion` skill instead.
+
+## laraq Rules
+
+- `plugins/laraq`'s own `execute` tool always runs in-process. Do not add
+  remote/HPC submission logic to `server/laraq_mcp` — that responsibility
+  belongs to `plugins/remotemanager`, same principle as the BigDFT Rules
+  above. `laraq-generating`'s "Running on a remote HPC cluster instead"
+  section is a hand-off pointer to `remotemanager`'s own MCP tools and
+  `remotemanager-dataset-promotion` skill, not a reimplementation.
+- `server/laraq_mcp` is a sibling package to `server/irene_mcp` in the same
+  `server/pyproject.toml` (broadened `packages.find.include`, merged
+  dependencies) — not a separate repo, not a uv workspace. Follow this
+  pattern for any future in-house (non-externally-owned) MCP server added
+  to this marketplace; reserve the `remotemanager`-style external-repo
+  pattern for code genuinely owned/maintained elsewhere.
+- Codex has no `agents`-bundling manifest field (only `skills`/`mcpServers`/
+  `apps`/`hooks`), so laraq's Codex subagents at `plugins/laraq/codex-agents/
+  *.toml` are not auto-installed — `laraq-configuring`/the README document a
+  manual copy into `~/.codex/agents/` or `<project>/.codex/agents/`. Update
+  these TOML mirrors any time `plugins/laraq/agents/*.md` changes; keep the
+  `name`/`description`/prompt content in sync by hand (same "two copies,
+  synced by hand" pattern as bundled documentation elsewhere in this repo).
+
+## laraq Development
+
+```bash
+cd server
+uv run pytest tests/laraq_test_*.py -v
+uv run python -m laraq_mcp.doctor
+uv run python tests/laraq_smoke.py [--execute]
+```
+
+`tests/laraq_smoke.py --execute` runs a trivial `def f(): return 1` snippet
+through `execute` — harmless, unlike Irene's `--job`, which consumes real
+allocation time.
 
 ## Refresh Procedure
 

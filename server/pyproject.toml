@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "irene-mcp"
 version = "0.1.0"
-description = "MCP servers for the TGCC Irene supercomputer: Bridge/Slurm interaction and documentation search."
+description = "MCP servers for BigDFT-Agents: TGCC Irene Bridge/Slurm interaction and documentation search, and laraq BigDFT Python code generation/validation/execution."
 requires-python = ">=3.10"
 dependencies = [
     "mcp",
@@ -13,15 +13,18 @@ dependencies = [
     "httpx",
     "numpy",
     "pydantic",
+    "pyflakes",
 ]
 
 [project.scripts]
 irene-hpc-mcp = "irene_mcp.hpc_server:main"
 irene-docs-mcp = "irene_mcp.docs_server:main"
 irene-doctor = "irene_mcp.doctor:main"
+laraq-mcp = "laraq_mcp.server:main"
+laraq-doctor = "laraq_mcp.doctor:main"
 
 [tool.setuptools.packages.find]
-include = ["irene_mcp*"]
+include = ["irene_mcp*", "laraq_mcp*"]
 
 [tool.setuptools.package-data]
 irene_mcp = [
@@ -29,3 +32,16 @@ irene_mcp = [
     "data/*.md",
     "data/docs_index/*",
 ]
+laraq_mcp = [
+    "data/docs/**/*.md",
+    "data/docs/**/*.txt",
+    "data/docs_index/**/*.json",
+    "data/docs_index/**/*.npy",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
