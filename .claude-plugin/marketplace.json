@@ -25,6 +25,12 @@
       "source": "./plugins/bigdft-dev",
       "description": "Developer guides for BigDFT's Fortran internals: Futile, ATlab, liborbs, PSolver, KB projectors, and the input-variable pipeline.",
       "keywords": ["bigdft", "fortran", "futile", "atlab", "liborbs", "psolver"]
+    },
+    {
+      "name": "laraq",
+      "source": "./plugins/laraq",
+      "description": "Generate, validate, and execute BigDFT Python code from natural-language queries via RAG research and subagent-driven analysis.",
+      "keywords": ["bigdft", "dft", "electronic-structure", "pybigdft", "code-generation", "rag"]
     }
   ]
 }

@@ -1,0 +1,25 @@
+{
+  "name": "laraq",
+  "version": "0.1.0",
+  "description": "Generate, validate, and execute BigDFT Python code from natural-language queries via RAG research and subagent-driven analysis. Remote/HPC execution uses the remotemanager plugin.",
+  "author": {
+    "name": "William Dawson"
+  },
+  "repository": "https://github.com/BigDFT-group/BigDFT-Agents",
+  "keywords": ["bigdft", "dft", "electronic-structure", "pybigdft", "code-generation", "rag"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "laraq",
+    "shortDescription": "Generate and run BigDFT Python code from natural-language requests.",
+    "longDescription": "Generate, validate, dry-run, and execute BigDFT Python code from natural-language queries using RAG research over the BigDFT documentation and subagent-driven analysis (intent extraction, physics-parameter extraction, feasibility checking, query expansion, code generation). Remote/HPC execution is handled by the remotemanager plugin, not laraq itself.",
+    "developerName": "William Dawson",
+    "category": "Productivity",
+    "capabilities": ["Interactive", "Write"],
+    "defaultPrompt": [
+      "Create a helium atom at position [2.0, 0.0, 0.0] in bohr and print its position in angstrom.",
+      "Check if computing the ionization potential of water is feasible.",
+      "Generate BigDFT code to build a water molecule and compute its total energy."
+    ]
+  }
+}

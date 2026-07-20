@@ -16,7 +16,7 @@ working on this repo should know.
 
 ## Included Plugins
 
-This marketplace currently distributes four plugins:
+This marketplace currently distributes five plugins:
 
 - `irene`: live TGCC Irene status, filesystem, job, and documentation tools.
 - `remotemanager`: RemoteManager Dataset campaign tools. The Python MCP server
@@ -31,6 +31,12 @@ This marketplace currently distributes four plugins:
 - `bigdft-dev`: developer guides for BigDFT's Fortran internals -- Futile,
   ATlab, liborbs, PSolver, KB projectors, and the input-variable pipeline.
   Skills only, no MCP server.
+- `laraq`: generate, validate, dry-run, and execute BigDFT Python code from
+  natural-language queries, via RAG research over the BigDFT documentation
+  and subagent-driven analysis (intent extraction, physics-parameter
+  extraction, feasibility checking, query expansion, code generation).
+  Execution is always in-process; remote/HPC submission of the generated
+  code uses the `remotemanager` plugin above, same as `bigdft`.
 
 Project-wide marketplace maintenance rules live in `AGENTS.md`. Everything
 below is about the `irene` plugin specifically.
@@ -163,10 +169,18 @@ If `uv` isn't reliably on `PATH` for the process that starts MCP servers,
 replace `"command": "uv"` with an absolute path (e.g.
 `/home/you/.local/bin/uv`) in either option above.
 
+`laraq` uses the same `#subdirectory=server` package as `irene`, just a
+different entrypoint (`laraq-mcp`) — see the `laraq-configuring` skill for
+its config file (`~/.laraq/config.toml`). Codex custom subagents for laraq
+aren't plugin-bundled (Codex has no `agents`-bundling manifest field yet);
+manual `.codex/agents/` mirrors ship at `plugins/laraq/codex-agents/*.toml`
+with copy instructions in that skill.
+
 ## Verify
 
 ```bash
 uv tool run --quiet --from git+https://github.com/BigDFT-group/BigDFT-Agents.git@main#subdirectory=server irene-doctor
+uv tool run --quiet --from git+https://github.com/BigDFT-group/BigDFT-Agents.git@main#subdirectory=server laraq-doctor
 ```
 
 All lines should read `✓` except possibly embedding (this machine has no
@@ -196,3 +210,18 @@ Commit the resulting `irene_mcp/data/docs_index/` (just `chunks.json` — no
 hpc-agent-core** — see `AGENTS.md`'s "hpc-agent-core migration — validation
 status" section for exactly what was and wasn't verified before treating
 this as production-ready.
+
+`laraq` (unrelated to hpc-agent-core):
+
+```bash
+cd server
+uv run pytest tests/laraq_test_*.py -v   # unit tests
+uv run python -m laraq_mcp.doctor        # health check
+uv run python tests/laraq_smoke.py       # read-only MCP stdio test
+uv run python tests/laraq_smoke.py --execute   # + runs a trivial snippet through execute
+```
+
+There's no pre-built embedding index committed — `research()` builds and
+caches one locally (`~/.cache/laraq-mcp/embeddings/<provider>-<model>/`) on
+first use. `server/laraq_mcp/ingest.py` remains available for anyone who
+wants to pre-build and ship one instead.

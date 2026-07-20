@@ -5,27 +5,38 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "irene-mcp"
 version = "0.2.1"
-description = "MCP servers for the TGCC Irene supercomputer: Bridge scheduler interaction and documentation search. A thin skin over hpc-agent-core."
+description = "MCP servers for BigDFT-Agents: TGCC Irene Bridge scheduler interaction and documentation search (a thin skin over hpc-agent-core), and laraq BigDFT Python code generation/validation/execution."
 requires-python = ">=3.10"
 dependencies = [
-    # Pinned to a compatible range, not left open — see hpc-agent-core's
-    # PORTING.md §9. Re-check `pip index versions hpc-agent-core` before
-    # bumping the ceiling. Needs >=0.4.2: 0.4.1 only fixed doctor's
-    # check_embedding() for a no-endpoint machine; 0.4.2 fixed the matching
-    # crash in rag.ingest.build_index() (hit live: RCCS_EMBED_API_KEY set
-    # in the environment made embed_api_key() resolve truthy even though
-    # Irene has no embed_base_url configured, so ingest tried to embed
-    # against a blank URL and crashed instead of writing a BM25-only index).
+    # irene_mcp: pinned to a compatible range, not left open — see
+    # hpc-agent-core's PORTING.md §9. Re-check `pip index versions
+    # hpc-agent-core` before bumping the ceiling. Needs >=0.4.2: 0.4.1 only
+    # fixed doctor's check_embedding() for a no-endpoint machine; 0.4.2 fixed
+    # the matching crash in rag.ingest.build_index() (hit live:
+    # RCCS_EMBED_API_KEY set in the environment made embed_api_key() resolve
+    # truthy even though Irene has no embed_base_url configured, so ingest
+    # tried to embed against a blank URL and crashed instead of writing a
+    # BM25-only index).
     "hpc-agent-core>=0.4.2,<0.5",
+    # laraq_mcp: does not use hpc-agent-core; these are its own direct
+    # dependencies, listed explicitly rather than relying on whatever
+    # hpc-agent-core happens to pull in transitively.
+    "mcp",
+    "httpx",
+    "numpy",
+    "pydantic",
+    "pyflakes",
 ]
 
 [project.scripts]
 irene-hpc-mcp = "irene_mcp.hpc_server:main"
 irene-docs-mcp = "irene_mcp.docs_server:main"
 irene-doctor = "irene_mcp.doctor:main"
+laraq-mcp = "laraq_mcp.server:main"
+laraq-doctor = "laraq_mcp.doctor:main"
 
 [tool.setuptools.packages.find]
-include = ["irene_mcp*"]
+include = ["irene_mcp*", "laraq_mcp*"]
 
 [tool.setuptools.package-data]
 irene_mcp = [
@@ -33,3 +44,16 @@ irene_mcp = [
     "data/*.md",
     "data/docs_index/*",
 ]
+laraq_mcp = [
+    "data/docs/**/*.md",
+    "data/docs/**/*.txt",
+    "data/docs_index/**/*.json",
+    "data/docs_index/**/*.npy",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

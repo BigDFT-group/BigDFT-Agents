@@ -49,6 +49,18 @@
         "installation": "AVAILABLE"
       },
       "category": "Productivity"
+    },
+    {
+      "name": "laraq",
+      "source": {
+        "source": "local",
+        "path": "./plugins/laraq"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
     }
   ]
 }
