@@ -9,14 +9,14 @@ repo root.
 import shlex
 from pathlib import Path
 
-from mcp.server.fastmcp import FastMCP
+from hpc_agent_core.mcp_server import MCPServer
 
 from hpc_agent_core.middleware import download_file, quote_path, run_command, upload_file
 from hpc_agent_core.models import CompressionType, Job, JobSpec
 from hpc_agent_core.serving import serve
 from irene_mcp import compute, config
 
-mcp = FastMCP("irene-hpc")
+mcp = MCPServer("irene-hpc")
 
 RESOURCE_ID = "irene"
 

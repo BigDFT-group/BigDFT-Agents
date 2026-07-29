@@ -1,4 +1,4 @@
-"""FastMCP server for laraq-mcp.
+"""MCP server for laraq-mcp.
 
 Exposes the deterministic half of the laraq pipeline as MCP tools:
 check_server, research, validate, dry_run, execute. Everything that calls an
@@ -18,7 +18,7 @@ the separate `remotemanager` plugin, not by laraq itself.
 import threading
 from typing import Any
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
 from laraq_mcp.config import Config, load_config
 from laraq_mcp.dry_run import run_dry_run
@@ -27,7 +27,7 @@ from laraq_mcp.executors import local_execute
 from laraq_mcp.research import get_or_build_index, research_multi
 from laraq_mcp.validator import validate_code
 
-mcp = FastMCP("laraq-mcp")
+mcp = MCPServer("laraq-mcp")
 
 _lock = threading.Lock()
 _config: Config | None = None
@@ -207,7 +207,7 @@ def execute(code: str) -> str:
 
 
 def main() -> None:
-    """Run the FastMCP server over stdio."""
+    """Run the MCP server over stdio."""
     mcp.run()
 
 
