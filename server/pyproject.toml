@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "irene-mcp"
-version = "0.2.4"
+version = "0.2.5"
 description = "MCP servers for BigDFT-Agents: TGCC Irene Bridge scheduler interaction and documentation search (a thin skin over hpc-agent-core), and laraq BigDFT Python code generation/validation/execution."
 requires-python = ">=3.10"
 dependencies = [
@@ -14,7 +14,7 @@ dependencies = [
     # fixed doctor's check_embedding() for a no-endpoint machine; 0.4.2 fixed
     # the matching crash in rag.ingest.build_index() when RCCS_EMBED_API_KEY
     # was set in the environment but Irene has no embed_base_url configured).
-    "hpc-agent-core==0.4.9",
+    "hpc-agent-core==0.4.10",
     # laraq_mcp: does not use hpc-agent-core; these are its own direct
     # dependencies, listed explicitly rather than relying on whatever
     # hpc-agent-core happens to pull in transitively. Also pinned exactly
