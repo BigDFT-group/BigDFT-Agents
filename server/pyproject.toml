@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "irene-mcp"
-version = "0.2.2"
+version = "0.2.3"
 description = "MCP servers for BigDFT-Agents: TGCC Irene Bridge scheduler interaction and documentation search (a thin skin over hpc-agent-core), and laraq BigDFT Python code generation/validation/execution."
 requires-python = ">=3.10"
 dependencies = [
@@ -17,7 +17,7 @@ dependencies = [
     # truthy even though Irene has no embed_base_url configured, so ingest
     # tried to embed against a blank URL and crashed instead of writing a
     # BM25-only index).
-    "hpc-agent-core>=0.4.2,<0.5",
+    "hpc-agent-core>=0.4.6,<0.5",
     # laraq_mcp: does not use hpc-agent-core; these are its own direct
     # dependencies, listed explicitly rather than relying on whatever
     # hpc-agent-core happens to pull in transitively. mcp 2.0.0 renamed
