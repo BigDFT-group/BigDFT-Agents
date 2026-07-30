@@ -4,27 +4,25 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "irene-mcp"
-version = "0.2.3"
+version = "0.2.4"
 description = "MCP servers for BigDFT-Agents: TGCC Irene Bridge scheduler interaction and documentation search (a thin skin over hpc-agent-core), and laraq BigDFT Python code generation/validation/execution."
 requires-python = ">=3.10"
 dependencies = [
-    # irene_mcp: pinned to a compatible range, not left open — see
-    # hpc-agent-core's PORTING.md §9. Re-check `pip index versions
-    # hpc-agent-core` before bumping the ceiling. Needs >=0.4.2: 0.4.1 only
+    # irene_mcp: pinned exactly, not a range — see hpc-agent-core's
+    # PORTING.md §9. Bump deliberately, after re-running tests/smoke.py
+    # against the new version. History: needed >=0.4.2 for a while (0.4.1
     # fixed doctor's check_embedding() for a no-endpoint machine; 0.4.2 fixed
-    # the matching crash in rag.ingest.build_index() (hit live:
-    # RCCS_EMBED_API_KEY set in the environment made embed_api_key() resolve
-    # truthy even though Irene has no embed_base_url configured, so ingest
-    # tried to embed against a blank URL and crashed instead of writing a
-    # BM25-only index).
-    "hpc-agent-core>=0.4.6,<0.5",
+    # the matching crash in rag.ingest.build_index() when RCCS_EMBED_API_KEY
+    # was set in the environment but Irene has no embed_base_url configured).
+    "hpc-agent-core==0.4.9",
     # laraq_mcp: does not use hpc-agent-core; these are its own direct
     # dependencies, listed explicitly rather than relying on whatever
-    # hpc-agent-core happens to pull in transitively. mcp 2.0.0 renamed
-    # mcp.server.fastmcp.FastMCP to mcp.server.mcpserver.MCPServer with no
-    # deprecation window — laraq_mcp/server.py migrated, pin forward since
-    # this was previously unpinned.
-    "mcp>=2.0,<3.0",
+    # hpc-agent-core happens to pull in transitively. Also pinned exactly
+    # for the same reason as hpc-agent-core above — mcp 2.0.0 already
+    # renamed mcp.server.fastmcp.FastMCP to mcp.server.mcpserver.MCPServer
+    # with no deprecation window once, so a range here carries the same
+    # risk it did before that migration.
+    "mcp==2.0.0",
     "httpx",
     "numpy",
     "pydantic",
