@@ -4,12 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "irene-mcp"
-version = "0.2.6"
+version = "0.2.5"
 description = "MCP servers for BigDFT-Agents: TGCC Irene Bridge scheduler interaction and documentation search (a thin skin over hpc-agent-core), and laraq BigDFT Python code generation/validation/execution."
-license = {text = "AGPL-3.0-or-later"}
-classifiers = [
-    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
-]
 requires-python = ">=3.10"
 dependencies = [
     # irene_mcp: pinned exactly, not a range — see hpc-agent-core's

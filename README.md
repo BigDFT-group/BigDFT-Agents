@@ -112,7 +112,3 @@ codex plugin marketplace add BigDFT-group/BigDFT-Agents
 
 Then open `/plugins`, install `irene`, start a new thread, and run
 `/irene-demo` to verify the connection end-to-end.
-
-## License
-
-AGPL-3.0-or-later — see [LICENSE](LICENSE).
