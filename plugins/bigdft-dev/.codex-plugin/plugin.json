@@ -6,7 +6,19 @@
     "name": "William Dawson"
   },
   "repository": "https://github.com/BigDFT-group/BigDFT-Agents",
-  "keywords": ["bigdft", "fortran", "futile", "atlab", "liborbs", "psolver", "electronic-structure", "hpc"],
+  "keywords": [
+    "bigdft",
+    "fortran",
+    "futile",
+    "atlab",
+    "liborbs",
+    "psolver",
+    "electronic-structure",
+    "hpc",
+    "linear-scaling",
+    "confinement",
+    "restart"
+  ],
   "skills": "./skills/",
   "interface": {
     "displayName": "BigDFT Developer",
@@ -14,7 +26,10 @@
     "longDescription": "Developer guides for contributing to BigDFT's Fortran source: the Futile utility library, ATlab geometry/grid library, liborbs orbital library, PSolver Poisson solver, Kleinman-Bylander pseudopotential projectors, and the pipeline for adding or modifying input variables.",
     "developerName": "William Dawson",
     "category": "Productivity",
-    "capabilities": ["Interactive", "Write"],
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
     "defaultPrompt": [
       "Add a new input variable to BigDFT.",
       "Explain the Futile dictionary API.",

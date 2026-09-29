@@ -14,7 +14,10 @@
     "liborbs",
     "psolver",
     "electronic-structure",
-    "hpc"
+    "hpc",
+    "linear-scaling",
+    "confinement",
+    "restart"
   ],
   "skills": "./skills/"
 }
