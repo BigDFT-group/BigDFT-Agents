@@ -9,6 +9,35 @@ allowed-tools: Read, Write, Bash, Glob, Grep
 
 Help the user create a BigDFT input file. The input can be produced as a YAML file (`input.yaml`) for direct use by the `bigdft` executable, or as a Python script using `PyBigDFT.Inputfiles` and `PyBigDFT.InputActions`. **Ask each question one at a time.** Skip questions whose answers are obvious from context.
 
+## Load these skills alongside this one
+
+This skill covers the *input parameters*. Neighbouring concerns have their own
+skills, and you should load them rather than improvising:
+
+| When the task involves | Load |
+|---|---|
+| Building or manipulating the molecule/cell | `bigdft-systems` |
+| Choosing or configuring pseudopotentials, NLCC, electron counts | `bigdft-pseudopotentials` |
+| Reading energies, forces or densities back out | `bigdft-logfile` |
+| `inputpsiid: linear`, `lin_*` sections, support functions | `bigdft-linear-scaling` |
+
+In particular, **prefer the System/Fragment/Atom API over writing a `posinp`
+dict by hand.** A hand-written dict works, but it bypasses everything the
+`bigdft-systems` skill gives you -- fragment bookkeeping, unit handling, file I/O,
+`get_atoms()`, charges from a logfile -- and those are what later analysis is
+built on. The idiomatic shape is:
+
+```python
+from BigDFT.Atoms import Atom
+from BigDFT.Fragments import Fragment
+from BigDFT.Systems import System
+
+frag = Fragment(atomlist=[Atom({'O': [0.0, 0.0, 0.119], 'units': 'angstroem'})])
+sys = System()
+sys['WAT:0'] = frag          # fragment ids must be NAME:INDEX
+inp.set_atomic_positions(sys.get_posinp(units='angstroem'))
+```
+
 ## Input File Format
 
 BigDFT uses YAML input files with a one-to-one correspondence to Python dictionaries. The top-level keys are:
@@ -56,7 +85,7 @@ How would you like to define your system?
   1. Provide atomic positions inline (I'll help you format them)
   2. Use an existing XYZ or ASCII file (posinp.xyz / posinp.ascii)
   3. Use an existing YAML file as a starting point
-  4. Build from PyBigDFT (Systems/Atoms API)
+  4. Build from PyBigDFT (Systems/Atoms API)  [preferred -- load the `bigdft-systems` skill]
 ```
 
 If they provide positions inline or an XYZ file, ask about boundary conditions:

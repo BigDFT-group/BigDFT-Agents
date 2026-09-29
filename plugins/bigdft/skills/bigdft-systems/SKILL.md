@@ -581,6 +581,10 @@ for frag_id, frag in sys.items():
 - Fragment names in systems from PDB files follow the pattern `RESNAME:RESID` (e.g., `ALA:42`).
 - Fragment names from `system_from_log` with `fragmentation='atomic'` follow `ELEMENT:INDEX` (e.g., `C:0`, `O:1`).
 - The `get_posinp()` method produces a dict directly usable in `Inputfile.set_atomic_positions()`.
+- **Fragment ids must be `NAME:INDEX`** (e.g. `WAT:0`, `ALA:42`). `get_posinp()` parses them with
+  `GetFragTuple()`, so a bare name like `sys['water'] = frag` raises
+  `ValueError: Invalid format for fragment ID` -- but only later, when the posinp is generated,
+  not when the fragment is assigned.
 - `System.cell` defaults to an infinite cell (free boundary conditions). Set it explicitly for periodic calculations.
 - Atom positions support three unit systems: `'bohr'` (atomic units), `'angstroem'`, and `'reduced'` (fractional, requires cell).
 - When a cell is provided to `Atom.get_position()`, minimum image convention is applied automatically.

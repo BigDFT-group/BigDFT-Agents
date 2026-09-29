@@ -337,7 +337,15 @@ skip = ["ntpoly"]
 
 ## Build Execution
 
-After writing the rcfile, determine whether the source is a git checkout or a tarball. If the source directory contains a `.git` directory (or the individual packages like `futile/`, `bigdft/` contain `autogen.sh` but no `configure`), it is a developer build from git and needs autogen first.
+After writing the rcfile, determine whether the source is a git checkout or a tarball. A git checkout has no generated `configure` scripts, so check for those directly:
+
+```bash
+ls <src>/futile/configure   # absent => developer build, needs autogen
+```
+
+The BigDFT modules do **not** ship `autogen.sh` scripts -- `Installer.py autogen` copies the m4 macros into each module and runs `autoreconf` itself. Do not test for `autogen.sh`; it never exists.
+
+**Do not pre-flight the autotools helper binaries.** Checking for `libtoolize`, `aclocal`, and friends and then predicting a failure is unreliable: BigDFT uses no libtool at all (no `LT_INIT` or `AC_PROG_LIBTOOL` in any module's `configure.ac`), so a missing `libtoolize` is irrelevant -- `autoreconf` never calls it. On macOS, Homebrew installs GNU libtool as `glibtoolize` and a bare `libtoolize` is normally absent, which makes this an easy false alarm. Just run `Installer.py autogen -y` and read the actual error if one appears. `autoconf` and `automake` on PATH are the only real prerequisites.
 
 **For git checkouts (developer builds):**
 ```bash
@@ -372,7 +380,8 @@ If the build fails, check the error and suggest fixes:
 | `MPI_Init` errors | Wrong compiler wrapper | Ensure FC is an MPI wrapper (mpifort, not gfortran) |
 | `configure: error: cannot run test program` | Cross-compilation mismatch | Add `--build=` and `--host=` flags |
 | Build in source dir error | Must use separate build dir | Create and cd to a separate build directory |
-| `autogen.sh: not found` | Developer build needs autogen | Run `Installer.py autogen` first |
+| `configure: No such file or directory` | Developer build needs autogen | Run `Installer.py autogen` first |
+| `possibly undefined macro: AX_...` during autogen | m4 macros not copied | Re-run `Installer.py autogen`; it copies m4 files into each module |
 
 ## Installer.py Action Reference
 
