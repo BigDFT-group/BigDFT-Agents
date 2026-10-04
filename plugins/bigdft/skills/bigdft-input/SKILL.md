@@ -160,6 +160,27 @@ Linear scaling kernel method:
   4. DIRMIN (direct minimization)
 ```
 
+**Default to CheSS/FOE** -- it is the supported path and works best in
+practice; `import: linear` already selects it. NTPoly and DIRMIN are
+alternatives for when there is a specific reason, not upgrades.
+
+**If NTPoly is genuinely wanted, use the `linear_purify` profile rather than
+writing a `lin_kernel` block:**
+
+```yaml
+import: [linear, linear_purify]
+```
+
+Import **both**: `linear_purify` is an overlay on `linear`, not a standalone
+profile. Alone it still runs but silently loses `linear`'s convergence
+settings and returns a different energy (17 mHa, on water).
+
+It sets `linear_method: NTPOLY` plus the `chess: ntpoly` thresholds and nothing
+else. Do **not** add `nit` or `rpnrm_cv` -- the profile omits them on purpose
+and they change the energy by ~1e-9. `temperature` is ignored by purification.
+See the `bigdft-linear-scaling` skill for the DIRMIN block, which needs
+`alphamix: 0.0` and `nstep` and does not converge with the defaults.
+
 ### 7 -- Calculation-specific options
 
 **For geometry optimization (type 2):**
@@ -734,7 +755,7 @@ BigDFT supports importing profiles via the `import` key. Available built-in prof
 | `linear_moderate` | Balanced accuracy/speed |
 | `linear_fast` | Speed over accuracy |
 | `linear_fragments` | Fragment calculations |
-| `linear_purify` | NTPoly purification instead of CheSS |
+| `linear_purify` | NTPoly purification instead of CheSS. The way to select NTPoly -- complete on its own, add nothing to `lin_kernel`. Prefer CheSS/FOE unless there is a reason. |
 | `mixing` | Metallic systems with density mixing |
 
 Usage in YAML:

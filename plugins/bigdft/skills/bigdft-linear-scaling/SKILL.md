@@ -213,7 +213,7 @@ lin_basis:
   gnrm_cv: [4.e-2, 1.e-2]
 
 lin_kernel:
-  linear_method: FOE    # or DIAG, NTPOLY
+  linear_method: FOE    # CheSS -- the default and the recommended solver
   rpnrm_cv: 1.e-8
 
 lin_basis_params:
@@ -249,6 +249,138 @@ ig_occupation:
     2p: 4.0
 ```
 
+## Choosing the Kernel Solver
+
+`lin_kernel.linear_method` selects the density-kernel solver: `FOE`, `DIAG`,
+`NTPOLY`, `DIRMIN`.
+
+**Default to CheSS/FOE. It is the supported path and the one that works best
+in practice.** The `linear` profile already selects it, so for almost every
+calculation the answer is simply:
+
+```yaml
+import: linear
+```
+
+Do not reach for another solver unless there is a specific reason. If a user
+asks for NTPoly or DIRMIN without saying why, check whether CheSS has actually
+been tried first.
+
+**Reach for a profile before writing a `lin_kernel` block by hand.** Profiles
+carry convergence settings that hand-written blocks usually get wrong.
+
+### FOE (CheSS) -- the default
+
+Comes with `import: linear`. Its own tolerances live under `chess: foe:`:
+
+```yaml
+chess:
+  foe:
+    fscale: 5.0e-2           # decay length of the error function
+    ef_interpol_det: 1.0e-12
+```
+
+`rloc_kernel_foe` in `lin_basis_params` is the FOE matrix-vector cutoff and
+only matters here.
+
+### DIAG
+
+Diagonalisation with density mixing. Fine for small systems and useful as a
+reference to check another solver against, but it does not scale -- it is not
+the linear-scaling path.
+
+### NTPOLY -- alternative, when CheSS will not do
+
+NTPoly is available but **does not perform as well as CheSS**; treat it as a
+fallback rather than an upgrade. When it is genuinely wanted, select it with
+the profile:
+
+```yaml
+import: [linear, linear_purify]
+```
+
+```python
+inp["import"] = ["linear", "linear_purify"]
+# equivalently, the same content via an action:
+inp.set_ntpoly(thresh_dens=1e-6, conv_dens=1e-4)
+```
+
+`linear_purify` is an **overlay on `linear`, not a standalone profile** -- its
+own description reads "extra parameters for linear". Import both, in that
+order. Importing it alone does not fail: it runs and returns a different
+answer, because none of `linear`'s convergence settings are present. On water,
+`[linear, linear_purify]` gave -17.2007337733 while `linear_purify` alone gave
+-17.2184639848, 17 mHa apart with no warning.
+
+`linear_purify` is complete in itself -- it sets `linear_method: NTPOLY` plus
+four `chess: ntpoly` thresholds, and nothing else:
+
+- **Do not add `nit` or `rpnrm_cv`.** Measured on water, adding them moves the
+  energy by 8e-10. The profile omits them deliberately.
+- **Leave the accuracy keys at their defaults** unless you have a reason. The
+  defaults are *tighter* than `linear_purify`'s; the profile's looser values
+  cost ~8e-7.
+- **`temperature` is ignored** by the purification path. Setting it does
+  nothing.
+
+The minimal working input is one line:
+
+```yaml
+lin_kernel: {linear_method: NTPOLY}
+```
+
+NTPoly must be compiled in -- check the logfile header for `has_ntpoly: Yes`.
+
+### DIRMIN
+
+There is no dedicated DIRMIN profile. The only in-tree configuration is inside
+`linear_virtual`; copy that block, because the settings are not the obvious
+ones:
+
+```yaml
+lin_kernel:
+  linear_method: DIRMIN
+  alphamix: 0.0            # no density mixing -- this is a minimisation
+  nstep: 500               # direct-minimisation steps; the knob that matters
+  nit: 1                   # outer kernel iterations
+  gnrm_cv_coeff: 1.0e-4    # convergence on the coefficients
+  delta_pnrm: -1
+  rpnrm_cv: 1.0e-8
+```
+
+`alphamix` **must** be 0.0 and `nstep` does the real work. With `alphamix: 0.2`
+and a default `nstep`, DIRMIN does not converge: on water it gave -17.0998 at
+`nit: [5,5]` and drifted to -16.6039 at `[30,30]`.
+
+### Where the solver options live
+
+`lin_kernel` holds only the generic kernel controls. NTPoly's and FOE's own
+tolerances go under `chess`:
+
+```yaml
+chess:
+  ntpoly: {threshold_density: ..., convergence_density: ...}
+  foe:    {fscale: ..., ef_interpol_det: ...}
+```
+
+The full `lin_kernel` list is fourteen variables -- easy to under-count by
+reading a profile instead of the definition block:
+
+```
+nstep  nit  idsx_coeff  idsx  alphamix  gnrm_cv_coeff  rpnrm_cv
+linear_method  mixing_method  alpha_sd_coeff  alpha_fit_coeff
+coeff_scaling_factor  delta_pnrm  diag_start
+```
+
+### Sanity check
+
+If you do run an alternative solver, check it against FOE -- they compute the
+same object, so they should agree closely. Via profiles on water:
+`import: linear` (FOE) gave -17.2007337735 and `import: [linear,
+linear_purify]` (NTPoly) gave -17.2007337733, 2e-10 apart. That was a
+three-atom test; agreement on a toy system says the input is right, not that
+the solver will hold up on a real one.
+
 ### Using the Linear Profile
 
 Instead of specifying everything, you can import the built-in profile and override:
@@ -272,7 +404,9 @@ ig_occupation:
     4p: 5.0
 ```
 
-Available profiles: `linear`, `linear_accurate`, `linear_moderate`, `linear_fast`, `linear_purify`.
+Available profiles: `linear`, `linear_accurate`, `linear_moderate`, `linear_fast`,
+`linear_purify` (NTPoly -- see Choosing the Kernel Solver above), `linear_virtual`
+(virtual states; also the only in-tree DIRMIN configuration), `linear_fragments`.
 
 ## Python Configuration
 
