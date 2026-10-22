@@ -335,6 +335,41 @@ skip = ["PyYAML", "libyaml"]
 skip = ["ntpoly"]
 ```
 
+## macOS: build from an activated virtual environment
+
+Create a virtual environment and **activate** it before calling `Installer.py`:
+
+```bash
+uv venv .venv                    # or: python3 -m venv .venv
+. .venv/bin/activate
+uv pip install setuptools wheel  # or: python -m pip install -U setuptools wheel
+```
+
+Homebrew's Python ignores the `--prefix` the installer passes, so `PyBigDFT`
+and `pyFutile` are written under the Homebrew prefix rather than the build tree
+-- and **the build reports success without them**. Inside a virtual environment
+that install scheme does not apply. Any virtual environment works; `uv` is not
+required.
+
+**Activate it; do not just `export PYTHON`.** Two interpreters are involved:
+`configure` respects `$PYTHON` and decides where the packages go, while
+`Installer.py` writes `bigdftvars.sh` for the interpreter it runs under itself.
+Exporting reaches only the first, so the packages land under one Python version
+while `bigdftvars.sh` names another. Activating puts one interpreter on `PATH`
+for both, and makes the version irrelevant.
+
+**Check it, because the failure is silent:**
+
+```bash
+. install/bin/bigdftvars.sh
+python3 -c "import BigDFT, futile; print(BigDFT.__file__)"
+```
+
+The path must be inside the build tree. On `ModuleNotFoundError`, compare
+`grep PYTHONPATH install/bin/bigdftvars.sh` with
+`ls -d install/lib/python*/site-packages` -- different versions mean the
+environment was not activated.
+
 ## Build Execution
 
 After writing the rcfile, determine whether the source is a git checkout or a tarball. A git checkout has no generated `configure` scripts, so check for those directly:
