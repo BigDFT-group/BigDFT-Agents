@@ -408,6 +408,108 @@ Available profiles: `linear`, `linear_accurate`, `linear_moderate`, `linear_fast
 `linear_purify` (NTPoly -- see Choosing the Kernel Solver above), `linear_virtual`
 (virtual states; also the only in-tree DIRMIN configuration), `linear_fragments`.
 
+## Restarting a Calculation
+
+A linear-scaling run can be stopped and resumed from the support functions on
+disk -- the usual case being a job that hits its wall-clock limit.
+
+**Write the restart data** in the run that will be interrupted:
+
+```yaml
+lin_general:
+  output_wf: 2        # support functions, wavelet Fortran binary
+  output_mat: 1       # matrices
+```
+
+**Resume** with:
+
+```yaml
+dft:
+  inputpsiid: linear_restart    # == 102, "linear on disk"
+lin_general:
+  kernel_restart_mode: 0        # density kernel (1 is for direct minimisation)
+  output_mat: 1                 # also the matrix READ format -- see below
+```
+
+### Four things to get right
+
+**Use the same run name.** The support functions are read from
+`data-<name>/minBasis*`, so the resumed run must be given the same `name` as
+the run it resumes. A different name reads an empty directory, starts from
+scratch and **reports no error**.
+
+**Set `output_mat` on the resumed run too.** It is not only an output switch:
+`cluster.f90:722` passes `in%lin%output_mat_format` as the format used to
+*read* the matrices back.
+
+**Match `kernel_restart_mode` to the solver.** `0` (density kernel) for
+FOE/NTPoly, `1` (coefficients) for direct minimisation. A mismatch does not
+error -- it leaves the kernel effectively uninitialised while still reporting
+`infocode: 0`.
+
+**`nit: [low, high]` is moot under `import: linear`**, which sets
+`hybrid: Yes`; the logfile then states that only the low-accuracy values are
+relevant. Do not expect `[0, n]` and `[n, 0]` to differ.
+
+### Reproducing a converged result exactly
+
+To re-derive a converged energy without redoing the work -- for post-processing,
+or to dump matrices that were not written the first time -- freeze the basis and
+let the kernel converge:
+
+```yaml
+lin_general: {nit: [1, 0]}
+lin_basis:   {nit: 0}        # keep the support functions as read
+lin_kernel:  {nit: 15}       # the kernel is rebuilt, so give it room
+```
+
+One outer iteration then reproduces the converged energy, instead of the tens
+of iterations the original run needed. Freezing the basis is what makes this
+work: the `linear` profile sets `lin_basis.nit: 8`, which re-optimises the
+support functions and walks away from the restart point.
+
+How closely the energy is reproduced depends on the kernel solver, because the
+kernel itself is rebuilt rather than restored:
+
+| solver | reproduced to |
+|---|---|
+| NTPoly (purification) | ~1e-13 Ha, consistently |
+| FOE | ~1e-10 Ha typically, but up to ~1e-7 on some systems |
+
+FOE locates the chemical potential by an inexact search, so a rebuilt kernel
+can settle on a slightly different Fermi level and shift the energy; the size
+of the shift varies from system to system and is not predictable from the
+system size. Purification has no Fermi-level search -- the target electron
+count goes straight into the density step -- so it reproduces the kernel to
+roundoff. If you need a restart to reproduce an energy tightly, prefer
+purification for that step (`import: [linear, linear_purify]`).
+
+### Resuming an unfinished run: expect a slightly different energy
+
+When resuming a run that had **not** converged, do *not* freeze the basis --
+the point is to carry on optimising. But under the standard `linear` profile
+the resumed run will generally **not** converge to the same energy as an
+uninterrupted one. Both converge tightly (`delta out ~1e-13`); they simply
+settle on slightly different solutions.
+
+Observed on water chains: differences of 1e-4 to 1e-3 Ha for 6 atoms, with the
+final energy depending on *how many times* the job was restarted, not only on
+the total iteration count.
+
+This is structural rather than a bug: a restart drops the optimisation history,
+so the run takes a different path, and because the support functions and the
+density are optimised together there is no single sharp minimum to return to.
+
+Practical consequences:
+
+- Do not expect bit-reproducibility, or even SCF-tolerance agreement, between
+  an uninterrupted run and a restarted one.
+- Restart as few times as possible and as late as possible. Interrupting early
+  gave the largest discrepancies, and frequent short segments can cost *more*
+  total iterations than running straight through.
+- When comparing energies across a set of systems, keep the restart pattern
+  consistent, or converge each system in a single run.
+
 ## Python Configuration
 
 ```python
