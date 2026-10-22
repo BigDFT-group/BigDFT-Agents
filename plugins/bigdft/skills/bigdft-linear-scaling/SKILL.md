@@ -329,10 +329,26 @@ lin_basis:   {nit: 0}        # keep the support functions as read
 lin_kernel:  {nit: 15}       # the kernel is rebuilt, so give it room
 ```
 
-One outer iteration then reproduces the converged energy to ~1e-10 Ha, instead
-of the tens of iterations the original run needed. Freezing the basis is what
-makes it exact: the `linear` profile sets `lin_basis.nit: 8`, which
-re-optimises the support functions and walks away from the restart point.
+One outer iteration then reproduces the converged energy, instead of the tens
+of iterations the original run needed. Freezing the basis is what makes this
+work: the `linear` profile sets `lin_basis.nit: 8`, which re-optimises the
+support functions and walks away from the restart point.
+
+How closely the energy is reproduced depends on the kernel solver, because the
+kernel itself is rebuilt rather than restored:
+
+| solver | reproduced to |
+|---|---|
+| NTPoly (purification) | ~1e-13 Ha, consistently |
+| FOE | ~1e-10 Ha typically, but up to ~1e-7 on some systems |
+
+FOE locates the chemical potential by an inexact search, so a rebuilt kernel
+can settle on a slightly different Fermi level and shift the energy; the size
+of the shift varies from system to system and is not predictable from the
+system size. Purification has no Fermi-level search -- the target electron
+count goes straight into the density step -- so it reproduces the kernel to
+roundoff. If you need a restart to reproduce an energy tightly, prefer
+purification for that step (`import: [linear, linear_purify]`).
 
 ### Resuming an unfinished run: expect a slightly different energy
 
