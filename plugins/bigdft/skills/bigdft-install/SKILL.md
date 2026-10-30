@@ -128,6 +128,14 @@ If they say no, proceed with defaults. If they mention specifics, handle accordi
 
 For GCC >= 10, always add `-fallow-argument-mismatch` to FCFLAGS regardless of what the user asks for.
 
+This flag accommodates legacy Fortran interfaces, including MPI wrappers; it
+does not establish that a mismatched call is correct. When diagnosing a type
+mismatch, inspect the call and interface before treating it as a known legacy
+case. The warning cleanup in
+[bigdft-suite !429](https://gitlab.com/l_sim/bigdft-suite/-/merge_requests/429)
+does not remove the remaining legacy MPI mismatches, so it is not a reason to
+drop the flag.
+
 ## rcfile Generation
 
 After collecting answers, generate a configuration file. Write it to `<build-dir>/custom.rc`.
@@ -408,7 +416,7 @@ If the build fails, check the error and suggest fixes:
 
 | Error | Likely cause | Fix |
 |-------|-------------|-----|
-| `Type mismatch` in Fortran | GCC >= 10 strictness | Add `-fallow-argument-mismatch` to FCFLAGS |
+| `Type mismatch` in Fortran | Legacy interface or incorrect call | Inspect argument types, kinds, ranks, and count; retain `-fallow-argument-mismatch` for known legacy interfaces on GCC >= 10 and fix incorrect calls |
 | `cannot find -llapack` | Missing LAPACK | Install or fix `--with-ext-linalg` path |
 | `No rule to make target` | Stale build | Run `Installer.py clean` then rebuild |
 | `libyaml.so not found` at runtime | Missing LD_LIBRARY_PATH | `export LD_LIBRARY_PATH=<build>/install/lib:$LD_LIBRARY_PATH` |
