@@ -212,5 +212,6 @@ Keep the `.mcp.json` manifest free of user paths. Use the config file instead.
 - The `remotemanager-MCP` package evolves independently and can be updated without changing the marketplace entry.
 
 For Irene campaigns, do not rely on implicit project defaults. Check available
-projects through the Irene plugin or `ccc_compuse`, then pass the selected
-project explicitly in `run_options`.
+projects with `get_projects(facility="irene")` from the HPC Rookery plugin, or
+`ccc_compuse` directly, then pass the selected project explicitly in
+`run_options`.

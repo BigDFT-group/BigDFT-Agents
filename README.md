@@ -1,24 +1,38 @@
 # BigDFT-Agents
 
 Claude Code and Codex plugin marketplace for the [BigDFT](https://bigdft.org)
-electronic structure code and the TGCC **Irene** supercomputer at CEA: install
-and use BigDFT, run remote calculations with RemoteManager, and submit/monitor
-Bridge jobs on Irene, all from the agent.
+electronic structure code: install and use BigDFT, generate and run BigDFT
+calculations from natural language, and drive RemoteManager campaigns, all
+from the agent.
 
-Irene is CPU-first. The normal target is the `rome` partition: 2,286 AMD Rome
-nodes with 128 cores per node. Specialized `xlarge` and V100-family partitions
-cover large-memory and GPU workloads. Built as a thin machine-specific "skin"
-on top of [`hpc-agent-core`](https://pypi.org/project/hpc-agent-core/) — see
-[hpc-agent-core's `PORTING.md`](https://github.com/william-dawson/hpc-agent-core/blob/main/PORTING.md)
-for the general porting guide this repo follows, and
-[`AGENTS.md`](AGENTS.md) for the design rules and cluster facts an agent
-working on this repo should know.
+## Cluster access moved to HPC Rookery
+
+Submitting and monitoring jobs on TGCC **Irene** used to live here as the
+`irene` plugin. It now lives in
+[HPC Rookery](https://github.com/william-dawson/hpc-rookery), which serves
+Irene alongside every other machine through one server, with this repo's
+Irene guide, facts and skill content merged into it.
+
+Install the two Rookery plugins next to these:
+
+```
+/plugin marketplace add william-dawson/hpc-rookery
+/plugin install hpc@hpc-marketplace
+/plugin install hpc-irene@hpc-marketplace
+```
+
+Rookery's tools take a facility argument, so an Irene call is
+`get_resources(facility="irene")` rather than `get_resources()`. Settings move
+from `~/.hpc-agent/irene.json`'s old shape to Rookery's — the same file path,
+and `irene-configuring` there walks through it.
+
+See [`AGENTS.md`](AGENTS.md) for the design rules an agent working on this
+repo should know.
 
 ## Included Plugins
 
-This marketplace currently distributes five plugins:
+This marketplace currently distributes four plugins:
 
-- `irene`: live TGCC Irene status, filesystem, job, and documentation tools.
 - `remotemanager`: RemoteManager Dataset campaign tools. The Python MCP server
   remains in the external `remotemanager-MCP` repository and is installed at
   launch time with `uv tool run`. User-specific paths are read from
@@ -38,49 +52,15 @@ This marketplace currently distributes five plugins:
   Execution is always in-process; remote/HPC submission of the generated
   code uses the `remotemanager` plugin above, same as `bigdft`.
 
-Project-wide marketplace maintenance rules live in `AGENTS.md`. Everything
-below is about the `irene` plugin specifically.
-
-## Configure
-
-Settings live in `~/.hpc-agent/irene.json` (the common directory shared by
-every hpc-agent-core plugin):
-
-```json
-{
-  "ssh": {"host": "irene"},
-  "computer": {"passfile": "/tmp/irene"},
-  "defaults": {"account": "gen12345", "filesystems": "scratch,work"}
-}
-```
-
-- `ssh.host` is a `~/.ssh/config` alias, TGCC-provided `user@host`, or
-  `"localhost"` if the agent is running directly on an Irene front-end node
-  (no SSH needed at all). `IRENE_HOST` overrides it.
-- `computer.passfile` is an optional password file for SSH auth (only
-  needed if Irene requires it for your account). If you configured this
-  plugin before it moved onto hpc-agent-core, move this value here from
-  its old location, `ssh.passfile` — that location is no longer read.
-- `defaults.account` is the TGCC project charged when a job doesn't set
-  `attributes.account` explicitly (the backend still validates it against
-  `ccc_compuse` at submit time). The old top-level `account` key still
-  works too. `IRENE_ACCOUNT` overrides both.
-- `defaults.filesystems` is the default Bridge `-m` value; every Irene job
-  submission must declare filesystems. The old top-level `filesystems` key
-  still works too. `IRENE_FILESYSTEMS` overrides both.
-- A legacy `~/.irene/config.json` is still read if it's the only config
-  present.
-
-Docs search works offline with BM25 over the packaged guide (no shared
-embedding endpoint is configured for Irene).
+Project-wide marketplace maintenance rules live in `AGENTS.md`.
 
 ## Install
 
 ### Prerequisite: uv
 
-The plugin starts its MCP servers with `uv tool run` from this repository's
-`main` branch, so [`uv`](https://docs.astral.sh/uv/) must be installed and
-on your `PATH` before Claude Code or Codex starts the plugin:
+The `remotemanager` and `laraq` plugins start their MCP servers with
+`uv tool run`, so [`uv`](https://docs.astral.sh/uv/) must be installed and on
+your `PATH` before Claude Code or Codex starts them:
 
 ```bash
 brew install uv        # or: curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -96,13 +76,13 @@ that case, use the manual `.mcp.json` form below with an absolute path to
 
 ```text
 /plugin marketplace add BigDFT-group/BigDFT-Agents
-/plugin install irene@bigdft-agents-marketplace
+/plugin install bigdft@bigdft-agents-marketplace
 /reload-plugins
 ```
 
-Swap `irene` for `remotemanager`, `bigdft`, or `bigdft-dev` to install the other
-plugins. `bigdft` and `bigdft-dev` are skills only -- no `uv`, MCP server, or
-`PATH` setup needed.
+Swap `bigdft` for `bigdft-dev`, `remotemanager`, or `laraq` to install the
+other plugins. `bigdft` and `bigdft-dev` are skills only -- no `uv`, MCP
+server, or `PATH` setup needed.
 
 ### Codex
 
@@ -110,5 +90,7 @@ plugins. `bigdft` and `bigdft-dev` are skills only -- no `uv`, MCP server, or
 codex plugin marketplace add BigDFT-group/BigDFT-Agents
 ```
 
-Then open `/plugins`, install `irene`, start a new thread, and run
-`/irene-demo` to verify the connection end-to-end.
+Then open `/plugins`, install the plugins you want, and start a new thread.
+
+For Irene jobs, add HPC Rookery's marketplace as shown at the top of this
+file and run `/irene-demo` from there.

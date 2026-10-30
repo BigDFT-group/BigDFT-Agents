@@ -5,23 +5,18 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "irene-mcp"
 version = "0.2.6"
-description = "MCP servers for BigDFT-Agents: TGCC Irene Bridge scheduler interaction and documentation search (a thin skin over hpc-agent-core), and laraq BigDFT Python code generation/validation/execution."
+description = "MCP server for BigDFT-Agents: laraq BigDFT Python code generation, validation, and execution. Cluster access moved to HPC Rookery."
 requires-python = ">=3.10"
 dependencies = [
-    # irene_mcp: pinned exactly, not a range — see hpc-agent-core's
-    # PORTING.md §9. Bump deliberately, after re-running tests/smoke.py
-    # against the new version. History: needed >=0.4.2 for a while (0.4.1
-    # fixed doctor's check_embedding() for a no-endpoint machine; 0.4.2 fixed
-    # the matching crash in rag.ingest.build_index() when RCCS_EMBED_API_KEY
-    # was set in the environment but Irene has no embed_base_url configured).
-    "hpc-agent-core==0.5.0",
-    # laraq_mcp: does not use hpc-agent-core; these are its own direct
-    # dependencies, listed explicitly rather than relying on whatever
-    # hpc-agent-core happens to pull in transitively. Also pinned exactly
-    # for the same reason as hpc-agent-core above — mcp 2.0.0 already
-    # renamed mcp.server.fastmcp.FastMCP to mcp.server.mcpserver.MCPServer
-    # with no deprecation window once, so a range here carries the same
-    # risk it did before that migration.
+    # laraq_mcp's own direct dependencies, listed explicitly rather than
+    # relying on what something else pulls in transitively. Pinned exactly
+    # for the reason mcp already demonstrated once: mcp 2.0.0 renamed
+    # mcp.server.fastmcp.FastMCP to mcp.server.mcpserver.MCPServer with no
+    # deprecation window, so a range here carries the same risk it did
+    # before that migration.
+    #
+    # hpc-agent-core is deliberately absent: it existed for irene_mcp, which
+    # moved to HPC Rookery. laraq_mcp imports no hpc_agent_core.
     "mcp==2.0.0",
     "httpx",
     "numpy",
@@ -30,21 +25,13 @@ dependencies = [
 ]
 
 [project.scripts]
-irene-hpc-mcp = "irene_mcp.hpc_server:main"
-irene-docs-mcp = "irene_mcp.docs_server:main"
-irene-doctor = "irene_mcp.doctor:main"
 laraq-mcp = "laraq_mcp.server:main"
 laraq-doctor = "laraq_mcp.doctor:main"
 
 [tool.setuptools.packages.find]
-include = ["irene_mcp*", "laraq_mcp*"]
+include = ["laraq_mcp*"]
 
 [tool.setuptools.package-data]
-irene_mcp = [
-    "data/*.json",
-    "data/*.md",
-    "data/docs_index/*",
-]
 laraq_mcp = [
     "data/docs/**/*.md",
     "data/docs/**/*.txt",
