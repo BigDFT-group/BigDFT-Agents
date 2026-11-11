@@ -5,11 +5,6 @@
   },
   "plugins": [
     {
-      "name": "irene",
-      "source": "./plugins/irene",
-      "description": "Bridge/Slurm job management and documentation search for the TGCC Irene supercomputer."
-    },
-    {
       "name": "remotemanager",
       "source": "./plugins/remotemanager",
       "description": "RemoteManager Dataset campaign management for local and HPC execution targets."
@@ -18,19 +13,40 @@
       "name": "bigdft",
       "source": "./plugins/bigdft",
       "description": "Install BigDFT, generate input files, build PyBigDFT systems, configure pseudopotentials and linear scaling, and parse logfile output.",
-      "keywords": ["bigdft", "dft", "electronic-structure", "pybigdft", "computational-chemistry", "wavelets"]
+      "keywords": [
+        "bigdft",
+        "dft",
+        "electronic-structure",
+        "pybigdft",
+        "computational-chemistry",
+        "wavelets"
+      ]
     },
     {
       "name": "bigdft-dev",
       "source": "./plugins/bigdft-dev",
       "description": "Developer guides for BigDFT's Fortran internals: Futile, ATlab, liborbs, PSolver, KB projectors, and the input-variable pipeline.",
-      "keywords": ["bigdft", "fortran", "futile", "atlab", "liborbs", "psolver"]
+      "keywords": [
+        "bigdft",
+        "fortran",
+        "futile",
+        "atlab",
+        "liborbs",
+        "psolver"
+      ]
     },
     {
       "name": "laraq",
       "source": "./plugins/laraq",
       "description": "Generate, validate, and execute BigDFT Python code from natural-language queries via RAG research and subagent-driven analysis.",
-      "keywords": ["bigdft", "dft", "electronic-structure", "pybigdft", "code-generation", "rag"]
+      "keywords": [
+        "bigdft",
+        "dft",
+        "electronic-structure",
+        "pybigdft",
+        "code-generation",
+        "rag"
+      ]
     }
   ]
 }
