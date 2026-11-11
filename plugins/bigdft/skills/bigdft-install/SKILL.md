@@ -1,13 +1,16 @@
 ---
 name: bigdft-install
 description: Guide installation of BigDFT from source. Determines the user's platform, compilers, and libraries, then generates an rcfile and walks through the build. Use when the user wants to compile or install BigDFT.
-user-invocable: true
 allowed-tools: Read, Write, Bash, Glob, Grep
 ---
 
 # BigDFT Installation
 
-Help the user build BigDFT from source using the `Installer.py` wrapper around jhbuild. **Ask each question one at a time.** Auto-detect what you can by running shell commands before asking the user.
+Help the user build BigDFT from source using the `Installer.py` wrapper around jhbuild. **Ask each needed question one at a time.** Auto-detect what you can before asking, and retain source, compiler, and build choices already established in the conversation.
+
+For Fugaku, read [the Fugaku installation reference](references/fugaku.md) first. Prefer the existing `rcfiles/fugaku_cross.rc` for a login-node cross build and adapt its module-specific settings rather than replacing it with a generic rcfile.
+
+When installing on a remote machine, inspect the build environment there using the available facility tools and their execution permissions. The local machine's architecture and Python environment do not describe the remote build or compute nodes.
 
 ## Pre-flight: Gather System Information
 
@@ -138,7 +141,7 @@ drop the flag.
 
 ## rcfile Generation
 
-After collecting answers, generate a configuration file. Write it to `<build-dir>/custom.rc`.
+After collecting missing information, reuse a matching rcfile when available. If customization is needed, copy it to `<build-dir>/custom.rc` and preserve its module-specific overrides. Generate a new configuration only when no suitable starting point exists.
 
 ### rcfile Template
 
@@ -311,7 +314,9 @@ conf["CXXFLAGS"] = "-O2 -fsycl -fsycl-device-code-split=per_kernel -fPIC"
 # Add to linalg: -lmkl_sycl
 ```
 
-### NTPoly Configuration
+### CMake Dependencies and NTPoly Configuration
+
+Inspect the selected source tree's modulesets to identify CMake dependencies. Autotools `FC`, `CC`, and `--host` settings in `autogenargs` do not configure CMake packages. For a cross build, set the target and compilers in `module_cmakeargs` for each CMake dependency; current libxc releases, as well as NTPoly, may need this. A successful host-native dependency build does not establish that it is usable by the target executable.
 
 NTPoly uses CMake and often needs special handling:
 
