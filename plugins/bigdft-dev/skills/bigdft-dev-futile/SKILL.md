@@ -485,6 +485,11 @@ nbytes = f_sizeof(arr)              ! size in bytes
 addr = f_loc(arr)                   ! memory address
 ```
 
+For character/integer conversions through `f_memcpy`, count one integer element
+per character. Use `size(integer_array)` for capacity; its byte size is larger
+and can hide an undersized buffer. These overloads convert character codes;
+use string parsing for numeric text.
+
 ## Error Handling
 
 Futile provides structured error handling with a try-catch pattern.
@@ -645,6 +650,20 @@ comm = fmpi_comm()
 
 Futile MPI wrappers handle profiling and error checking automatically.
 
+When changing the wrappers themselves:
+
+- Resolve optional `comm` and `tag` arguments into local defaults before passing
+  them to raw MPI calls. For communicators, use `mpi_comm = fmpi_comm(comm)`.
+- Use `FMPI_STATUS_IGNORE` for `MPI_WAIT`; `FMPI_STATUSES_IGNORE` is for calls
+  accepting an array of statuses, such as `MPI_WAITALL`.
+- Match send and receive element types. The byte allreduce overload requires
+  `logical(f_byte)` for both buffers. Operands modified by multi-scalar reductions
+  must be writable variables, including optional operands.
+- Include the root rank in raw `MPI_REDUCE` calls, before the communicator.
+- In the corrected `mpigathered_d2` implementation, the caller owns the returned
+  pointer on every rank and releases it with `f_free_ptr`. Gathered data is
+  meaningful on the root; cleanup is still required on non-root ranks.
+
 ### Fake MPI
 
 When compiled without MPI, futile provides `MPIfake` with no-op stubs so serial code compiles without `#ifdef` guards.
@@ -694,6 +713,15 @@ integer(f_long) :: li          ! 64-bit integer
 real(f_simple) :: r            ! single precision
 real(f_double) :: d            ! double precision
 ```
+
+Choose the kind before evaluating arithmetic: `16_f_long**k` avoids default-kind
+overflow that a subsequent `int(16**k, kind=f_long)` cannot repair. Keep element
+counts, byte sizes, and alignment calculations distinct.
+
+At C interfaces, match the C prototype using `iso_c_binding`: `c_size_t` for
+`size_t`, `c_int` for `int`, and `c_ptr` for pointers. Match argument count,
+`value`, and output `intent` as well; a fake backend must preserve the public
+interface and wrap a C allocator with its actual prototype.
 
 ## Enumerators
 
@@ -825,6 +853,31 @@ end subroutine
 | Timer | `t0 = f_time()` ... `elapsed = f_time() - t0` |
 | Profile timing | `call f_profile(cat_id)` ... `call f_profile_end(cat_id)` |
 | MPI allreduce | `call fmpi_allreduce(buf, op=FMPI_SUM)` |
+
+## Maintaining Futile Implementations
+
+The pitfalls above are illustrated by
+[bigdft-suite !429](https://gitlab.com/l_sim/bigdft-suite/-/merge_requests/429),
+reviewed at revision `3b10c6f263119127bf3074820672ffc95b215e47`. Check the
+user's source revision before assuming those fixes are present; the MR was open
+when this guidance was written.
+
+- Separate unused-code cleanup from behavior changes. Preserve arguments required
+  by public, C, MPI, and real/fake backend interfaces.
+- When a routine has a corresponding `futile/fypp/` template, update the template
+  and generated source together using the repository's generation workflow.
+- When errors can be caught, define function results and output state on early
+  returns; callers must still check errors before using those results.
+- A complex-to-real copy must extract each element's real part. Passing complex
+  storage directly to real `SCOPY`/`DCOPY` mixes real and imaginary components.
+
+For affected code, add regression coverage for omitted MPI options, multiple
+ranks (including a nonzero root), and ownership/cleanup on every rank. For
+conversions and allocation, exercise exact and undersized capacities, long-kind
+values, signed/overflow/underflow cases, and malformed numeric strings. Run the
+relevant serial/fake-MPI and real-MPI tests; use SimGrid checks when changing its
+bindings or status handling. A reduction in compiler warnings alone does not
+establish correctness.
 
 ## Compiling Against Futile
 
