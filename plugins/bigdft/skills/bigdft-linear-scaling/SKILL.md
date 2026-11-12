@@ -1,6 +1,6 @@
 ---
 name: bigdft-linear-scaling
-description: Configure linear scaling calculations in BigDFT. Covers lin_basis_params (nbasis, rloc, confinement), ig_occupation, and how to add support for new elements. The number of basis functions depends on the pseudopotential electron count. Use when setting up or extending linear scaling calculations.
+description: Configure linear scaling BigDFT for organic or molecular systems and materials, choosing linear or linear plus linear_convergence as appropriate. Set support functions, localization radii, and occupations consistently with pseudopotentials, and diagnose convergence.
 user-invocable: true
 allowed-tools: Read, Write, Bash, Glob, Grep
 ---
@@ -8,6 +8,48 @@ allowed-tools: Read, Write, Bash, Glob, Grep
 # Linear Scaling Configuration
 
 Linear scaling BigDFT uses localized support functions instead of global wavefunctions. Each atom gets a set of support functions whose number and shape are controlled by `lin_basis_params`, and whose initial occupation is set by `ig_occupation`. These must be consistent with the pseudopotential's valence electron count.
+
+## Choose the profile for the system
+
+The basic `linear` profile mainly works well for organic and molecular systems, including water droplets. Use it as the starting point for those systems:
+
+```yaml
+import: linear
+```
+
+For materials and extended systems, including periodic bulk silicon, **recommend `linear` plus `linear_convergence` from the outset**. Do not wait through repeated poorly converged runs with the basic profile before considering this existing option. Check that the built version provides the supplement, and load both in this order:
+
+```yaml
+import: [linear, linear_convergence]
+```
+
+Retain the user's system, boundary conditions, XC, pseudopotentials and grid settings as explicit input. For example, a requested PBE/NLCC calculation at hgrid 0.5 should keep those settings when changing profiles; the convergence profile does not select pseudopotentials.
+
+The verified profile definition supplies:
+
+| Setting | Value |
+|---------|-------|
+| `lin_kernel.rpnrm_cv` | `1e-10` |
+| `lin_general.nit` | `100` outer iterations |
+| `lin_basis.nit` | `2` support-function iterations per outer step |
+| `perf.adjust_kernel_iterations` | `No` |
+| `perf.adjust_kernel_threshold` | `No` |
+
+It disables adaptive kernel iteration/threshold changes. Check the expanded effective input in the logfile to confirm the settings used by the executable. These values are version-dependent; the source snapshot for the actual build is authoritative.
+
+Also use this supplement when an organic or molecular calculation has stalled or unstable support/kernel self-consistency. The materials recommendation is a starting-point choice, not a guarantee of convergence: verify residuals and effective settings. A profile change does not by itself fix localization regions that do not fit a periodic cell, large support-function boundary values, or a large `Tr(H)` consistency error. Diagnose those separately rather than hiding them by shrinking radii or Hamiltonian padding.
+
+`lin_general.hybrid` names a support-function/kernel optimization mode; it does not select a hybrid XC functional.
+
+Other profiles have different purposes:
+
+- `linear_accurate`, `linear_moderate`, `linear_fast`: accuracy/speed presets, not interchangeable convergence fixes. They may override grid/XC/basis settings, so keep user-selected values explicit.
+- `linear_purify`: supplements `linear` to select NTPoly purification; it changes the kernel solver and requires a working NTPoly build.
+- `linear_laura`: marked temporary in the source; inspect its definition and version before choosing it.
+- `linear_virtual`, `linear_fragments`: restart/virtual-state or fragment workflows, not generic convergence profiles.
+
+Profile definitions: [BigDFT input profiles](https://gitlab.com/l_sim/bigdft-suite/-/blob/devel/bigdft/src/input_variables_definition.yaml). Verify availability against the installed version before relying on this list.
+
 
 ## The Key Relationship
 
@@ -255,12 +297,15 @@ ig_occupation:
 `NTPOLY`, `DIRMIN`.
 
 **Default to CheSS/FOE. It is the supported path and the one that works best
-in practice.** The `linear` profile already selects it, so for almost every
-calculation the answer is simply:
+in practice.** Both recommended profile routes keep FOE. For organic or
+molecular systems start with:
 
 ```yaml
 import: linear
 ```
+
+For materials and extended systems, use `import: [linear, linear_convergence]`
+as described above.
 
 Do not reach for another solver unless there is a specific reason. If a user
 asks for NTPoly or DIRMIN without saying why, check whether CheSS has actually
@@ -681,7 +726,7 @@ ig_occupation:
 | Problem | Likely Cause | Fix |
 |---------|-------------|-----|
 | "electrons != occupation" warning | ig_occupation sum doesn't match PSP | Adjust ig_occupation to sum to PSP electron count |
-| Support functions not converging | rloc too small, confinement too tight | Increase rloc, decrease ao_confinement |
+| Support functions not converging | Adaptive kernel/support optimization, insufficient radii or unsuitable confinement | For materials, confirm `linear_convergence` is loaded with `linear`; inspect residuals, boundary/trace warnings and radii before changing several parameters |
 | Very slow calculation | rloc or rloc_kernel too large | Reduce to smallest stable values |
 | Linear scaling gives wrong energy | nbasis too small for element | Increase nbasis to next tier (1→4, 4→9, 9→16) |
 | Missing element error | No lin_basis_params for element | Add entry for every element in system |
