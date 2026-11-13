@@ -151,6 +151,13 @@ SCF convergence:
   - Scaling approach: cubic (default) or linear?
 ```
 
+For linear calculations, use `bigdft-linear-scaling` before choosing support
+functions and occupations. Its materials guidance uses
+`import: [linear, linear_convergence]`; for periodic bulk Si it recommends
+nine functions with `3s: 2.0`, `3p: 2.0`, `3d: 0.0`, checks the PSP electron
+count, and verifies that both localization grids fit the cell. The ordinary
+`linear` route remains the starting point for organic systems and water.
+
 If linear scaling, ask about the method:
 ```
 Linear scaling kernel method:
@@ -742,7 +749,7 @@ inp.remove(A.optimize_geometry)
 Typical per-element values (for organic molecules with FOE):
 - **C, N, O**: nbasis=4, ao_confinement=2.7e-2, rloc=4.7, rloc_kernel=8.0, rloc_kernel_foe=15.0
 - **H**: nbasis=1, ao_confinement=4.9e-2, rloc=4.0, rloc_kernel=8.0, rloc_kernel_foe=15.0
-- **Si**: nbasis=9, ao_confinement=4.0e-2, rloc=6.0, rloc_kernel=7.0, rloc_kernel_foe=20.0
+- **Bulk Si**: use the polarized materials recipe in `bigdft-linear-scaling`; pair `nbasis: 9` with an explicitly empty `3d` shell and verify radii/cell fit. Do not copy molecular-test confinement and cutoff values as bulk defaults.
 
 ## Profiles (Presets)
 

@@ -51,13 +51,46 @@ Other profiles have different purposes:
 Profile definitions: [BigDFT input profiles](https://gitlab.com/l_sim/bigdft-suite/-/blob/devel/bigdft/src/input_variables_definition.yaml). Verify availability against the installed version before relying on this list.
 
 
+## Periodic bulk silicon
+
+For a fresh bulk-silicon linear calculation, recommend the materials profile
+above and **nine support functions per Si (sp+d polarization)**, unless the
+user requests a minimal basis or supplies a basis already validated for the
+system. Set the initial occupations together with the basis:
+
+```yaml
+import: [linear, linear_convergence]
+lin_basis_params:
+  Si:
+    nbasis: 9
+ig_occupation:
+  Si:
+    3s: 2.0
+    3p: 2.0
+    3d: 0.0
+```
+
+This is for a four-valence-electron Si pseudopotential. The empty 3d shell
+provides five initial polarization orbitals; it adds no electrons. Setting
+`nbasis: 9` alone can exceed the number of input-guess atomic orbitals.
+The `linear` profile's built-in four-function Si basis is a minimum, not the
+recommended bulk starting point. Keep it when explicitly requested, and test
+its convergence and accuracy rather than silently changing the user's basis.
+
+Before launching, check both support and Hamiltonian localization-region grid
+sizes against the periodic cell. Do not shrink radii or Hamiltonian padding
+just to make a small cell fit. See [periodic silicon setup and convergence
+checks](references/periodic-silicon.md) for the tested recipe, cell-fit failures,
+and the limits of the evidence. Use the actual executable's expanded settings
+and a dry run to verify fit and memory.
+
 ## The Key Relationship
 
 ```
 Pseudopotential → valence electrons → orbital shells → nbasis + ig_occupation
 ```
 
-The pseudopotential determines how many valence electrons each element has. Those electrons occupy atomic orbital shells (s, p, d, f), which determines how many support functions (`nbasis`) are needed. The `ig_occupation` tells BigDFT how to distribute electrons across those shells for the initial guess.
+The pseudopotential determines the valence electron count. Occupied atomic shells suggest a minimum basis; additional polarization shells can be needed for a solid even when their initial occupation is zero. `ig_occupation` supplies the input-guess shells and distributes the physical electrons among them. Choose `nbasis` and these shells together.
 
 ### nbasis and Orbital Types
 
@@ -65,14 +98,14 @@ The pseudopotential determines how many valence electrons each element has. Thos
 |--------|----------|------------|---------|
 | 1 | s | 1 | Elements with 1-2 valence e⁻ in s shell (H, Li, Na, K) |
 | 4 | s, p | 1+3 | Elements with valence e⁻ in s+p shells (C, N, O, Si, Cl) |
-| 9 | s, p, d | 1+3+5 | Transition metals with d electrons (Cu, W) |
+| 9 | s, p, d | 1+3+5 | Polarized bulk Si; transition metals with d electrons (Cu, W) |
 | 16 | s, p, d, f | 1+3+5+7 | Lanthanides/actinides with f electrons |
 
-The formula: `nbasis = sum of (2l+1)` for each angular momentum channel l that is occupied.
+A complete-shell basis has `sum(2l+1)` orbitals over the included shells, including empty polarization shells. The input guess must provide at least `nbasis` orbitals, while the occupation sum must match the pseudopotential electron count. These are separate constraints.
 
 ## Built-In Element Parameters
 
-These elements are defined in the `linear` profile in BigDFT's input variable definitions. They work out of the box.
+These are built-in `linear` profile values, not a guarantee of convergence or basis quality. In particular, the four-function Si entry is the program default; use the polarized bulk recipe above as the agent recommendation. Verify values against the actual build.
 
 ### Light Elements (s-only, nbasis=1)
 
@@ -154,7 +187,7 @@ Based on the valence electron configuration:
 | Semicore s + p + d | 9-13 | Fe(16) with 3s3p semicore |
 | s + p + d + f electrons | 16 | Lanthanides |
 
-**Rule:** nbasis must provide enough orbitals to hold all valence electrons. For transition metals with semicore states, you may need more than the minimum.
+**Rule:** `nbasis` must provide enough orbitals to hold all valence electrons and must not exceed the available input-guess orbitals. Electron capacity alone does not establish basis quality: main-group solids can need empty polarization shells, and semicore states can require more than a minimal basis.
 
 ### 3. Choose rloc (Localization Radius)
 
