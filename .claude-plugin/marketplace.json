@@ -25,14 +25,16 @@
     {
       "name": "bigdft-dev",
       "source": "./plugins/bigdft-dev",
-      "description": "Developer guides for BigDFT's Fortran internals: Futile, ATlab, liborbs, PSolver, KB projectors, and the input-variable pipeline.",
+      "description": "Developer guides for BigDFT's Fortran internals and performance tuning: measurement, kernel models, assembly, instrumentation, and application validation.",
       "keywords": [
         "bigdft",
         "fortran",
         "futile",
         "atlab",
         "liborbs",
-        "psolver"
+        "psolver",
+        "performance",
+        "profiling"
       ]
     },
     {

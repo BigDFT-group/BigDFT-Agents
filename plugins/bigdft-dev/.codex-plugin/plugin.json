@@ -1,7 +1,7 @@
 {
   "name": "bigdft-dev",
-  "version": "0.1.0",
-  "description": "Developer guides for BigDFT's Fortran libraries and internals: Futile, ATlab, liborbs, PSolver, KB projectors, and the input-variable pipeline. Use when writing or modifying BigDFT source code.",
+  "version": "0.1.1",
+  "description": "Developer guides for BigDFT's Fortran libraries and performance tuning: Futile, ATlab, liborbs, PSolver, KB projectors, the input-variable pipeline, and measured kernel optimization.",
   "author": {
     "name": "William Dawson"
   },
@@ -17,13 +17,15 @@
     "hpc",
     "linear-scaling",
     "confinement",
-    "restart"
+    "restart",
+    "performance",
+    "profiling"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "BigDFT Developer",
     "shortDescription": "Fortran developer guides for BigDFT's internal libraries.",
-    "longDescription": "Developer guides for contributing to BigDFT's Fortran source: the Futile utility library, ATlab geometry/grid library, liborbs orbital library, PSolver Poisson solver, Kleinman-Bylander pseudopotential projectors, and the pipeline for adding or modifying input variables.",
+    "longDescription": "Developer guides for contributing to BigDFT's Fortran source: the Futile utility library, ATlab geometry/grid library, liborbs orbital library, PSolver Poisson solver, Kleinman-Bylander pseudopotential projectors, and the pipeline for adding or modifying input variables. Includes performance measurement, calibrated kernel extraction, mathematical cost models, assembly inspection, detailed instrumentation, and application A/B validation.",
     "developerName": "William Dawson",
     "category": "Productivity",
     "capabilities": [
@@ -33,7 +35,8 @@
     "defaultPrompt": [
       "Add a new input variable to BigDFT.",
       "Explain the Futile dictionary API.",
-      "Explain how PSolver handles boundary conditions."
+      "Explain how PSolver handles boundary conditions.",
+      "Profile and optimize a BigDFT kernel with application A/B validation."
     ]
   }
 }
