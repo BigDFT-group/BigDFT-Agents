@@ -11,6 +11,16 @@ mini-app, a smaller wait percentage, or a higher FLOP rate is supporting evidenc
 acceptance comes from the application. Work on one hypothesis at a time and keep
 an unchanged reference executable.
 
+**Write hot numerical code so it can be vectorized.** On A64FX/Fugaku, wide
+vectors are central to high arithmetic throughput. Expose independent work,
+regular access and sufficient loop length; consider SIMD across independent
+outputs when an inner reduction or sparse traversal resists vectorization.
+Preserve numerical semantics and include packing/gather costs. Verify the
+executed hot loop's vector width, active lanes and tails in assembly, then measure
+the result. A compiler report about a nearby setup loop or the presence of vector
+registers does not establish SIMD arithmetic in the kernel. Scalar code on both
+comparison CPUs is a reason to investigate a better SIMD dimension on A64FX.
+
 Infer the existing build, input, machine, and current experiment from available
 artifacts before asking questions. If information is missing, ask one question at
 a time while continuing independent work. Preserve the user's chosen physics and

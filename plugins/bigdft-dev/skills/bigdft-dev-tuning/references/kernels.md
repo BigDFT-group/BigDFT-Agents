@@ -55,6 +55,21 @@ nonnegative triangular counts and boundary-only threshold updates removed that
 work without changing cuts. This is an assembly observation, not a language-wide
 claim about integer division.
 
+In inspected GCC/Genoa and Fujitsu/A64FX builds, the hot pair contraction remained
+scalar on both CPUs. GCC's vectorized cut-index initialization did not vectorize
+the contraction. Scalar FMA using an XMM or AArch64 FP register is not packed SIMD.
+Compare the same executed specialization before attributing a performance gap to
+one compiler's vectorization.
+
+**Next SIMD hypothesis.** Batch independent grid points into vector lanes, keeping
+each point's original `i,j` accumulation order. Equal orbital counts allow a
+common loop shape even when orbital identifiers differ by lane. Bucketing within
+the original thread cuts can improve lane occupancy, but coefficient gathers,
+packing, tails and temporary storage must enter the model and measurements.
+Store completed densities by original point index and retain original-order
+charge accumulation when that reduction order must be preserved. This is a
+proposed experiment, not an established kernel speedup.
+
 **Correctness/floor.** Check both split sections, non-unit lower bounds, absent
 entries, empty points, spin blocks, charge/negative counts and original reduction
 semantics. A FLOP-only roofline misses integer/address overhead and the accumulation
@@ -116,6 +131,12 @@ assembly's scalar active predicate and the candidate's full-vector exponential
 path were checked, rather than inferred from a vectorization flag. A vector
 exponential instruction sequence is compiler/architecture-specific. Do not apply
 real/cropped-path assumptions to complex or other exponent branches.
+
+After specialization, both inspected compilers vectorized the selected fast
+sampler: GCC used vector exponential library calls and Fujitsu used a full-vector
+SVE exponential sequence. Missed-vectorization reports for the safe-exp fallback
+did not describe that fast path. Profile the remaining construction/application
+stages before repeating an already completed scalar-exponential optimization.
 
 **Correctness/floor.** Test all used degrees, exponents, centers, filter/crop bounds
 and output coefficients. Preserve safe-exp behavior in fallback cases. The floor

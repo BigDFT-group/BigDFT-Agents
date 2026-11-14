@@ -56,6 +56,16 @@ clocks. Inspect the broader work before assuming load imbalance is the next fix.
   controls versus 89.02/88.98 s candidates, a 1.67 s median saving against a prior
   1–2 s estimate. Scientific work/energies/multipoles matched, with force changes
   around 1e-15. Application profile comparison was still pending at this record.
+- **Density row-metadata cache:** a fresh native replay matched baseline
+  application call scopes within 6% and sped up by 1.34–1.37x. Two alternating
+  Water16 application pairs reduced median wall time from 90.40 to 88.145 s:
+  2.255 s saved (2.49%), matching the predicted 2–3 s. Scientific work, energies
+  and multipoles matched, with force changes around 1e-14 or below. Separate
+  profiles reduced the density category from 8.10 to 6.03 mean-rank seconds;
+  normalized non-barrier worker samples fell from about 6.76 to 4.75 s. These
+  measurements support acceptance for this one-node, four-MPI/twelve-thread
+  Water16 configuration. Larger-system acceptance and composition with the
+  separate setup-division change still require application tests.
 - **Preconditioner plane-owner fusion:** correct extracted code slowed from about
   7.69 to 8.11 ms. Reject that candidate at the kernel gate instead of promoting
   a synchronization-count reduction as an application gain.
@@ -80,8 +90,15 @@ clocks. Inspect the broader work before assuming load imbalance is the next fix.
   interval before the latest participant entered. Equal triangular pair estimates
   coexisted with very different point/orbital counts and compute durations. This
   located preceding work; it did not prove repartitioning was the best solution.
-- A row-metadata density cache later gave about 1.27x native replay speedup on two
-  captured contexts with exact fields. Full-application validation was pending.
+- The density pair contraction was scalar in both inspected GCC/Genoa and
+  Fujitsu/A64FX assembly. This rules out an assumed GCC SIMD advantage in that
+  particular loop; it does not explain the full cross-configuration timing gap.
+  Wide-vector arithmetic remains a priority on A64FX.
+- Density point-batching feasibility analysis found adjacent identical-list
+  eight-point blocks covered only about 9–24% of pair work in two captured
+  contexts. Bucketing by orbital count within existing thread cuts could fill
+  eight-point batches for about 97–99% of pair work. These are lane-coverage
+  estimates, not speedups: packing, gathers and the vector kernel remain untested.
 - Sparse dot arithmetic, compressed index search, overlap and transposed
   combinations remained prominent after earlier optimizations. Their remaining
   full implementation floors and broad trace attribution were still under study.
