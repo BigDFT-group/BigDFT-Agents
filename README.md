@@ -43,7 +43,8 @@ This marketplace currently distributes four plugins:
   Skills only, no MCP server. Remote execution of BigDFT calculations uses
   the `remotemanager` plugin above.
 - `bigdft-dev`: developer guides for BigDFT's Fortran internals -- Futile,
-  ATlab, liborbs, PSolver, KB projectors, and the input-variable pipeline.
+  ATlab, liborbs, PSolver, KB projectors, the input-variable pipeline, and
+  performance tuning with calibrated kernels and application validation.
   Skills only, no MCP server.
 - `laraq`: generate, validate, dry-run, and execute BigDFT Python code from
   natural-language queries, via RAG research over the BigDFT documentation
